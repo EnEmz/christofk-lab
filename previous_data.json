@@ -1,0 +1,11 @@
+{
+    "previous entry": [
+        {
+            "project_str": "HLRCC-FH | NCCFH1 | 15N Asparagine",
+            "exp_title": "cells-NCCFH1-6hr-none-UC13glc-gln-15N-Asn-D4-Cystine-label",
+            "leader_str": "Blake Wilde",
+            "description_box": "NCCFH1 HLRCC cells expressing FH or GFP. Cells were treated for 6 hours with media containing labeled metabolites: None; U-13C-Glucose; U-13C-Glutamine; 15N-Asparagine; and 3;3;3';3'-D4-Cystine.\n",
+            "groups_str": "GFP,FH"
+        }
+    ]
+}
