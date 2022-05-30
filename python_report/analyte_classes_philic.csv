@@ -1,0 +1,250 @@
+pathway_class,analyte_name
+amino acid,alanine
+amino acid,arginine
+amino acid,asparagine
+amino acid,aspartate
+amino acid,cysteine
+amino acid,cystine
+amino acid,homocysteic acid
+amino acid,glutamate
+amino acid,glutamine
+amino acid,glycine
+amino acid,histidine
+amino acid,leucine / isoleucine
+amino acid,lysine
+amino acid,saccharopine
+amino acid,methionine
+amino acid,phenylalanine
+amino acid,proline
+amino acid,hydroxyproline
+amino acid,serine
+amino acid,phosphoserine
+amino acid,taurine
+amino acid,hypotaurine
+amino acid,threonine
+amino acid,tryptophan
+amino acid,tyrosine
+amino acid,valine
+,
+small-molecule,norvaline
+small-molecule,trifluoromethanosulfonate
+small-molecule,metformin
+,
+,
+energy-carrier,NAD+
+energy-carrier,NADH
+energy-carrier,NAD+<div>NADH
+energy-carrier,NADP+
+energy-carrier,NADPH
+energy-carrier,NADP+<div>NADPH
+energy-carrier,creatinine
+energy-carrier,creatine
+energy-carrier,phosphocreatine
+,
+glycolysis,glucose
+glycolysis,glucose-6-phosphate
+glycolysis,fructose-6-phosphate
+glycolysis,fructose-1;6-bisphosphate
+glycolysis,dihydroxyacetone-phosphate
+glycolysis,glyceraldehyde-3-phosphate
+glycolysis,"1,3-bisphosphoglycerate"
+glycolysis,phosphoglycerate
+glycolysis,phosphoenolpyruvate
+glycolysis,pyruvate
+glycolysis,lactate
+glycolysis,2-D-glucose
+glycolysis,2-D-glucose-6-phosphate
+,
+polyol-pathway,sorbitol
+polyol-pathway,fructose
+polyol-pathway,fructose-1-phosphate
+,
+nucleotide,carbamoyl-aspartate
+nucleotide,dihydroorotate
+nucleotide,orotate
+nucleotide,inosine
+nucleotide,cytidine
+nucleotide,adenosine
+nucleotide,guanosine
+nucleotide,thymidine
+nucleotide,uridine
+nucleotide,AMP
+nucleotide,ADP
+nucleotide,ATP
+nucleotide,AMP<div>ADP
+nucleotide,CMP
+nucleotide,CDP
+nucleotide,CTP
+nucleotide,GMP
+nucleotide,GDP
+nucleotide,GTP
+nucleotide,IMP
+nucleotide,UMP
+nucleotide,UDP
+nucleotide,UTP
+nucleotide,XMP
+nucleotide,dATP
+nucleotide,dCTP
+nucleotide,dTTP
+nucleotide,adenylosuccinic acid
+nucleotide,hypoxanthine
+nucleotide,uric acid
+,
+purine intermediate,PRPP
+purine intermediate,phosphoribosylamine
+purine intermediate,GAR
+purine intermediate,FGAR
+purine intermediate,FGAM
+purine intermediate,AIR
+purine intermediate,CAIR
+purine intermediate,SAICAR
+purine intermediate,AICAR
+purine intermediate,FAICAR
+,
+PPP,6-phosphogluconic acid
+PPP,rib/ribul/xylul-ose-phosphate
+PPP,sedoheptulose-7-phosphate
+PPP,erythrose-4-phosphate
+PPP,glucosamine-6-phosphate
+PPP,N-acetylglucosamine
+PPP,UDP-N-acetylglucosamine
+PPP,N-acetylglucosamine-phosphate
+,
+TCA,cis-aconitate
+TCA,citrate / isocitrate
+TCA,alpha-ketoglutarate
+TCA,succinate
+TCA,alpha-ketoglutarate<div>succinate
+TCA,fumarate
+TCA,malate
+TCA,fumarate<div>malate
+,
+pyruvate ratios,pyruvate<div>alanine
+pyruvate ratios,pyruvate<div>cis-aconitate
+pyruvate ratios,pyruvate<div>citrate / isocitrate
+pyruvate ratios,pyruvate<div>alpha-ketoglutarate
+pyruvate ratios,pyruvate<div>succinate
+pyruvate ratios,pyruvate<div>fumarate
+pyruvate ratios,pyruvate<div>malate
+,
+,
+vitamin,ascorbate
+vitamin,folate
+vitamin,nicotinamide
+vitamin,pyridoxine
+vitamin,riboflavin
+,
+urea cycle,N-acetylglutamate
+urea cycle,ornithine
+urea cycle,citrulline
+urea cycle,argininosuccinate
+,
+,
+redox,GSH
+redox,GSSG
+redox,GSH<div>GSSG
+redox,ophthalmate
+redox,cysteine-glutathione disulfide
+redox,L-2-aminobutyric acid
+redox,gamma-glutamylcysteine
+,
+,
+SAM-cycle,5'-methylthioadenosine
+SAM-cycle,dimethylglycine
+SAM-cycle,betaine
+SAM-cycle,S-adenosyl-methionine
+SAM-cycle,S-adenosyl-homocysteine
+SAM-cycle,homocysteine
+SAM-cycle,cystathionine
+SAM-cycle,CDP-choline
+SAM-cycle,CDP-ethanolamine
+,
+lipid metabolism,CoA
+lipid metabolism,acetyl-CoA
+lipid metabolism,acetoacetyl-CoA
+lipid metabolism,N-trimethyllysine
+lipid metabolism,3-hydroxy-trimethyllysine
+lipid metabolism,gamma-butyrobetaine
+lipid metabolism,carnitine
+lipid metabolism,acetyl-carnitine
+lipid metabolism,propionyl-carnitine
+lipid metabolism,glycerol
+lipid metabolism,glycerol-3-phosphate
+lipid metabolism,sn-glycero-3-phosphoethanolamine
+lipid metabolism,choline
+lipid metabolism,phosphocholine
+lipid metabolism,glycerophosphocholine
+lipid metabolism,phosphatidylethanolamine
+lipid metabolism,phosphorylethanolamine
+lipid metabolism,lauric acid
+lipid metabolism,myristic acid
+lipid metabolism,palmitic acid
+lipid metabolism,stearic acid
+lipid metabolism,arachidic acid
+lipid metabolism,oleic acid
+,
+tryptophan metabolism,tryptophan
+tryptophan metabolism,kynurenine
+tryptophan metabolism,kynurenic acid
+tryptophan metabolism,anthralinic acid
+tryptophan metabolism,quinolinic acid
+tryptophan metabolism,picolinic acid
+tryptophan metabolism,serotonin
+tryptophan metabolism,melatonin
+,
+histidine metabolism,histidine
+histidine metabolism,histamine
+histidine metabolism,imidazoleacetic acid
+histidine metabolism,urocanic acid
+,
+other,1-methylnicotinamide
+other,4-aminobutyrate
+other,caffeine
+other,hydroxyglutarate
+other,methioninesulfoxide
+other,pinitol
+other,sarcosine
+other,UDP-glucuronic acid
+other,xylonic acid
+other,xylulose
+,
+,
+,
+,
+,
+,
+,
+succinilation,S-(1;2-Dicarboxyethyl)glutathione
+succinilation,S-(2-Succinyl)-L-cysteine
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+,
+MPC-inhibition-drugs,PP405Total
+MPC-inhibition-drugs,JXL065
+MPC-inhibition-drugs,JXL066
+MPC-inhibition-drugs,JXL067
+MPC-inhibition-drugs,JXL068
+MPC-inhibition-drugs,MXL026
+MPC-inhibition-drugs,MXL028
+MPC-inhibition-drugs,MXL029
+MPC-inhibition-drugs,MXL030
+MPC-inhibition-drugs,MXL031
+MPC-inhibition-drugs,MXL032
+MPC-inhibition-drugs,PP27
+MPC-inhibition-drugs,PP34
+MPC-inhibition-drugs,UK5099
