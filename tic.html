@@ -1,0 +1,1193 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>3DTIC Visualizer</title>
+     <link rel="stylesheet" href="spectrum.css">
+    <style>
+        
+        html, body{
+            
+            margin: 0;
+            height: 100%;
+            width: 100%;
+             font-family: 'Helvetica', sans-serif;
+             -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+        
+        #file_area{
+            
+            background:#efefef;
+            position: relative;
+            z-index: 1000;
+        }
+        
+        #input_layer{
+            
+            padding: 1em;
+            border-bottom: 1px solid black;      
+            padding-bottom: 2em;
+        }
+        
+        #input_layer input{
+            
+            vertical-align: middle;
+        }
+            
+    
+        .slider {
+          -webkit-appearance: none;
+          width: 150px;
+          height: 4px;
+          background: black;
+          outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 12px;
+          height: 12px;
+          background: black;
+          border:1px solid white;
+          cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+          width: 12px;
+          height: 12px;
+          background: black;
+          border:1px solid white;
+          cursor: pointer;
+        }
+        
+        .mzml_file_icon{
+            
+            display: inline-block;
+            padding: 0.5em;
+            margin: 0.4em;
+            position: relative;
+            background: #d8d8d8;
+        }
+        
+        .mzml_file_icon.active{
+
+            background: #307388;
+            color:white;
+        }
+        
+        .progress_bar{
+            
+            position: absolute;
+            top:95%;
+            left:0;
+            height:5%;
+            background:blue;
+        }
+        
+
+        
+        .chromatogram{
+            
+            position: absolute;
+            left:50%;
+            transform: translate(-50%, 0);
+            top:0;
+            opacity: 0.7;
+        }
+        
+        .overlay_text{
+            
+            position: absolute;
+        }
+        
+        .overlay_text:hover{
+            
+           font-weight: bold;
+        }
+    
+        
+        #visualizer{
+            
+            background: #d6d6d6;
+            width: 100%;
+            font-size: 14px;
+            overflow-x: hidden;
+             z-index: 900;
+            
+        }
+        
+        #top_control_container{
+            
+            padding: 1em;
+            border-bottom:1px solid black;
+            background: #d9d9d9;
+        }
+        
+         
+        #top_control_container input{
+            
+            margin-right: 3em;
+            vertical-align:middle;
+            padding:0.2em;
+        }
+        
+         #top_control_container select{
+            
+            margin-right: 3em;
+            vertical-align:middle;
+        }
+        
+        #mz_input{
+        
+            width: 5em;
+        }
+        
+         #ppm_input, #C13_count{
+            
+            width: 3em;
+        }
+        
+        #chromatogram_container{
+            
+            position: relative;
+            height: 30em;
+            margin-bottom: 1em;
+            padding-bottom: 1em;
+        }
+        
+        #bottom_control_container{
+            
+            padding: 1em;
+            border-top:1px solid black;
+            line-height: 3em;
+            background: #d9d9d9;
+        }
+        
+        #bottom_control_container input{
+            
+            margin-right: 3em;
+            vertical-align:middle;
+        }
+        
+        
+        
+         #sample_list_container{
+            
+            display: inline-block;
+            height: 1.4em;
+            min-width: 10em;
+            position: relative;
+            vertical-align: middle;
+            margin-right: 1em;
+        }
+        
+        .group:nth-child(n+2){
+            
+            display: none;
+        }
+        
+        .group_list.open{
+            
+             -webkit-box-shadow: 0px 3px 12px 0px rgba(0,0,0,0.14);
+            -moz-box-shadow: 0px 3px 12px 0px rgba(0,0,0,0.14);
+            box-shadow: 0px 3px 12px 0px rgba(0,0,0,0.14);
+            opacity: 0.9;
+        }
+        
+         .group_list.open .group:nth-child(n+2){
+            
+            display: block;
+        }
+        
+        .group_list{
+            
+            width: 100%;
+            padding: 0.1em;
+            border:1px solid black;
+            background: white;
+        }
+        
+        .g_title{
+            
+            padding: 0.3em;
+            font-weight: bold;
+            font-size: 14px;
+            padding-right: 2em;
+        }
+        
+        .group .s_list{
+            
+            height: 0;
+            transition: 0.3s height;
+            overflow: hidden;
+            font-size: 0.7em;
+        }
+        
+        .group_list.open .group.open .s_list{
+            
+            height: auto;
+        }
+        
+        .s .f_list{
+            
+            height: 0;
+            transition: 0.3s height;
+            overflow: hidden;
+            font-size: 0.85em;
+        }
+        
+        .s{
+            
+
+        }
+        
+        .s.open .f_list{
+            
+            height: auto;
+        }
+        
+        
+        .s_title{
+            
+            padding: 0.3em;
+            padding-left: 1.7em;
+        }
+        
+        .f_title{
+            
+            padding: 0.4em;
+            padding-left: 5em;
+        }
+        
+        div[class*="_title"]{
+            
+            position: relative;
+        }
+        
+        div[class*="_title"]:hover{
+            
+           background: black;
+              color:white;
+        }
+        
+        
+         div[class*="_title"]:hover .toggle_sh{
+            
+            border-top-color:white;
+        }
+        
+        
+        div[class*="_title"] .toggle_sh{
+            
+            
+            border: 0.3em solid transparent;
+            border-top: 0.3em black solid;
+            position: absolute;
+            right:5%;
+            top:calc(50% - 0.6em);
+            transform: translate(0,0.4em);
+        }
+        
+        .open > div[class*="_title"] .toggle_sh{
+            
+            transform: rotate(180deg);
+        }
+        
+        .f_title::after{
+            
+            display: none;
+        }
+        
+        div[class*="_title"] .toggle_sh:hover{
+            
+            border-top-color:red;
+            cursor: pointer;
+        }
+        
+        
+        div[class*="_title"] input{
+            
+            margin-right: 0.6em;
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        #floating_inspector{
+            
+            position: fixed;
+            background: white;
+            padding: 0.1em;
+            padding-left: 0.5em;
+            font-size: 11px;
+             -webkit-box-shadow: 0px 3px 12px 0px rgba(0,0,0,0.14);
+            -moz-box-shadow: 0px 3px 12px 0px rgba(0,0,0,0.14);
+            box-shadow: 0px 3px 12px 0px rgba(0,0,0,0.14);
+            z-index: 4000;
+            border:1px solid black;
+            top:-1000px;
+            color:black;
+        }
+        
+        #floating_inspector input[type="number"]{
+            
+            width: 3em;
+        }
+        
+        #floating_inspector input{
+            
+             margin-left: 0.4em;
+            margin-right: 1.6em;
+            vertical-align: middle;
+            padding: 0.2em;
+        }
+        
+        #floating_inspector > div{
+            
+            margin-bottom: 0.3em;
+            padding: 0.6em 0.2em;
+            border-bottom: 1px solid black;
+        }
+        #floating_inspector > div:last-child{
+            
+            border-bottom: none;
+        }
+        
+        
+        
+          #formula_hint{
+            
+            position: fixed;
+            z-index: 2000;
+            background: black;
+            color:white;
+            padding: 0.5em 0.2em;
+            display: none;
+            font-size:14px;
+        }
+        
+        #formula_hint img{
+            
+            display: none;
+            opacity: 0.95;
+            border: 1px solid black;
+        }
+        
+        .visible{
+            
+            display: block !important;
+            visibility: visible !important;
+        }
+        
+        #formula_hint:hover{
+            
+            background:gray;
+            cursor: pointer;
+        }
+        
+        #formula_hint:hover img{
+            
+            display: block;
+        }
+        
+        
+        #molecule_preview{
+            
+            position: absolute;
+            left: 102%;
+            top:50%;
+            transform: translateY(-50%);
+            width:15em;
+            height:15em;
+        }
+        
+        
+    
+    </style>
+</head>
+<body>
+   
+   
+   <div id = "file_area">
+       
+       <div id="input_layer">
+            <input type = "file" id = "mzxml_file_input" multiple>    
+            <input id = "toggle_sample_list" type = "button" value="show"> 
+            <div id="sample_list_container"> </div>
+       </div>
+    
+   </div>
+       
+       
+       
+       
+     <div id = "visualizer">
+          <div id = "top_control_container">
+          
+          name-search: <input id = "name_input" type = "text" placeholder="compound name">
+          
+          polarity: <select id="polarity">
+                  <option>neg</option>
+                   <option>pos</option>
+              </select>
+          
+          M-n: <input id = "C13_count" min="0" type = "number" value="0">
+          M0 m/z: <input data-massn="" data-massp=""  id = "mz_input" type = "text" placeholder="m/z">
+          ppm: <input id = "ppm_input" min="3" type = "number" value="15">
+          
+           <input id = "search_for_mz" type = "button" value="search"> 
+         </div>
+          <div id = "chromatogram_container"> </div>
+         <div id = "bottom_control_container">
+                <input id = "equalize_time" type = "button" value="equalize time">
+                <input id = "equalize_height" type = "button" value="equalize height"> 
+                <br>
+                 
+                 x-offset:
+                <input id="x_slider"  type="range" min="-600" max="600" value="0" class="slider">
+                 y-offset:
+                <input id="y_slider" type="range" min="0" max="600" value="0" class="slider">
+                <input id = "reset_offset" type = "button" value="reset offset"> 
+
+              
+                  <br>
+                window-center:
+                <input id="w_center" data-default="14" type="range" step="0.1" min="0" max="28" value="14" class="slider">
+                 window-width:
+                <input id="w_width" data-default="14" type="range" step="0.1" min="1" max="14" value="14" class="slider">
+                 <input id = "reset_window" type = "button" value="reset window"> 
+                  <input id = "scale_window" type = "button" value="scale window"> 
+                 
+                 <br>
+                 
+                 opacity:
+                <input id="opacity_input" type="range" step="0.05" min="0.1" max="1" value="0.8" class="slider">
+                <br>
+                background-color:<input id="background_color" type = "text">
+         </div>
+     </div>   
+
+     
+     
+     <div id = "floating_inspector">
+        
+          <div>
+         
+             stroke: <input id="stroke_toggle" type = "checkbox">
+             fill:<input  id="fill_toggle" type = "checkbox">
+             show-name:<input id="show_name_toggle" type = "checkbox">
+         
+         </div>
+         
+         <div>
+             stroke-color:<input id="stroke_color" type = "text">
+             stroke-width:<input id="stroke_width" type = "number" min="1" max="6" value="1">
+            fill-color:<input id="fill_color" type = "text">
+         </div>
+         
+         <div>
+             
+              x-offset:<input id="sample_x_offset" type = "number" value= "0" step="5">
+              y-offset:<input id="sample_y_offset" type = "number" value= "0" step="5">
+             
+         </div>  
+     </div>
+     
+     
+     
+     
+          <div id = "formula_hint"><span></span>
+        <img id = "molecule_preview">
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src ="spectrum.js"></script>
+    <script src = "mass_spec_toolkit.js"></script>
+    <script src = "view_kit.js"></script>
+    <script src = "mzxml_file_parser.js"></script>
+    <script src = "mass_calculator.min.js"></script>
+    <script>
+        
+        
+        
+       $("#stroke_color").spectrum({
+            color: "#f00",
+            showButtons: false,
+            hideAfterPaletteSelect:true,
+            appendTo:"#floating_inspector"
+        }); 
+        
+         $("#fill_color").spectrum({
+            color: "#f00",
+             showButtons: false,
+             appendTo:"#floating_inspector"
+        });
+        
+        
+        $('#background_color').spectrum({
+            
+             color: "#f00",
+             showButtons: false,
+             preferredFormat: "hex",
+             appendTo:'#bottom_control_container'
+        })
+        
+        
+        var SAMPLE_MENU = new SampleMenu();
+        SAMPLE_MENU.addToNode($("#sample_list_container"));
+        
+        
+        
+        var SAMPLE_GROUPS = [];
+        var NUM_SAMPLES = 0;
+        
+        function SAMPLES_FROM_ID_STRING(id_str){
+            
+            var ids = id_str.split(":");
+            var samples = [];
+            
+            for(var group of SAMPLE_GROUPS){
+                 
+                 for(var sample of group.getSamples()){
+                     
+                      for(var id of ids) if(sample.id == id) samples.push(sample);
+                 }
+             }
+            
+            
+            console.log(samples);
+            
+            return samples;
+        }
+        
+        
+    
+        
+        
+        var COLOR_MANAGER = new ColorManager();
+        
+        
+        
+        var NUM_FILES_TO_LOAD = 0;
+        
+        var SCAN_SERIES_LIST = {};
+        var MZMLFILE_ICONS = {};
+        var CHROM_VIEWS = {};
+        
+         
+        $("#toggle_sample_list").on("click", function(){
+            
+            if($(".group_list").hasClass("open")) $(this).val("show");
+            else $(this).val("hide");
+            
+           $(".group_list").toggleClass("open");
+        })
+
+        $("#mzxml_file_input").on("change", function(e){
+
+            for(var file of $(this)[0].files){
+                
+               if(file.name.indexOf(".mzXML") < 0) continue;
+                
+                NUM_FILES_TO_LOAD++;
+				
+				var reader = new FileReader();
+                reader.file_name = file.name;
+				reader.onload = function(e) {
+                    
+                    MZXML_FILE_DID_FINISH_LOADING(this.file_name, e.target.result);
+				};
+				
+				reader.readAsText(file);
+                SCAN_SERIES_LIST[file.name] = new ScanSeries();
+			}
+        });
+        
+        
+        function FILE_INFO_FROM_FILENAME(file_name){
+            
+            
+            var token_ix = file_name.indexOf("___");
+            var polarity = file_name.substring(token_ix+ 3, file_name.indexOf(".mzXML"));
+            
+            var rep_num = file_name.substring(file_name.lastIndexOf("-") + 1, token_ix);
+            var rep_name = null;
+            
+            if(isNaN(rep_num)) rep_num = null;
+            else{
+                
+                rep_num = parseInt(rep_num);
+            }
+            
+            if(rep_num != null){
+                
+                 rep_name = file_name.substring(0,file_name.lastIndexOf("-"));
+            }
+            else{
+                
+                 rep_name = file_name.substring(0,token_ix);
+            }
+            
+            return {name:rep_name, num:rep_num, pol:polarity};
+        }
+        
+        
+        function MZXML_FILE_DID_FINISH_LOADING(file_name, file_txt){
+            
+            console.log(file_name + " was fully loaded");
+            
+            PARSE_MZ_XML_FILE_STRING(file_name, file_txt);
+        }
+        
+        
+        
+        
+        function PARSE_MZ_XML_FILE_STRING(file_name, file_text){
+            
+            
+            var parse_worker = new Worker("mzxml_file_parser.js");
+			parse_worker.addEventListener('message', function(e){
+                
+                var scan_data = e.data.result;           
+                if(scan_data.points != null){
+                    
+                    var new_scan = new Scan(scan_data);
+                    new_scan.removePointsBelowIntensity(1e3);
+				
+				    if(new_scan.numberOfPoints() > 0) SCAN_SERIES_LIST[file_name].addScan(new_scan);
+                }
+				
+				if(e.data.progress == 1) MZXML_FILE_WAS_FULLY_PARSED(file_name);
+		   });
+            
+           parse_worker.postMessage({action:"process", filters:"ms1_only", file_text:file_text})
+        }
+        
+        
+        
+        function MZXML_FILE_WAS_FULLY_PARSED(file_name){
+                        
+                    
+            var active_scan_series = SCAN_SERIES_LIST[file_name];
+            
+            var file_info = FILE_INFO_FROM_FILENAME(file_name);
+            
+            var found_group = false;
+            
+            for(var group of SAMPLE_GROUPS){
+                
+                if(group.name == file_info.name){
+
+                    var sample_found = false;
+                    
+                    for(var sample of group.getSamples()){
+                        
+                        if(sample.name == (file_info.name + "-" + file_info.num)){
+                            
+                            if(file_info.pol == "pos") sample.setPosFile(active_scan_series)
+                            else if(file_info.pol == "neg") sample.setNegFile(active_scan_series)
+                            
+                            sample_found = true;
+                            break;
+                        }
+                        
+                    }
+                    
+                    if(sample_found == false){
+                        
+                        var sample = new Sample(file_info.name + "-" + file_info.num);
+                        if(file_info.pol == "pos") sample.setPosFile(active_scan_series)
+                        else if(file_info.pol == "neg") sample.setNegFile(active_scan_series)
+                        
+                        group.addSample(sample);
+                    }
+                    
+                    found_group = true;
+                    break;
+                }
+                
+            }
+            
+            if(found_group == false){
+                
+                var group = new SampleGroup(file_info.name);
+                var sample = new Sample(file_info.name + "-" + file_info.num);
+                
+                if(file_info.pol == "pos") sample.setPosFile(active_scan_series)
+                else if(file_info.pol == "neg") sample.setNegFile(active_scan_series)
+                
+                group.addSample(sample);
+                SAMPLE_GROUPS.push(group);
+            }
+            
+            console.log(file_name + " was fully parsed");
+            
+            console.log(active_scan_series);
+        
+            
+            NUM_FILES_TO_LOAD--;
+            if(NUM_FILES_TO_LOAD == 0){
+                
+                ALL_MXML_FILES_WERE_FULLY_PARSED();
+            }
+        }
+        
+        function ALL_MXML_FILES_WERE_FULLY_PARSED(){
+                        
+            
+            SAMPLE_GROUPS.sort(function(a, b) {
+                if(a.name < b.name) return -1; 
+                if(a.name > b.name)  return 1; 
+                return 0;
+            })
+            
+            for(var group of SAMPLE_GROUPS){
+                 
+                group.getSamples().sort(function(a, b) {
+                    
+                    if(a.name < b.name) return -1; 
+                    if(a.name > b.name)  return 1; 
+                    return 0;
+                 })
+             }
+            
+             for(var group of SAMPLE_GROUPS){
+                 
+                 var g_color = COLOR_MANAGER.nextColor();
+                 
+                 
+                 for(var sample of group.getSamples()){
+                     
+                      
+                     var style =   {
+
+                        stroke:true,
+                        fill:true,
+                        stroke_color:"black",
+                        stroke_width:1,
+                        fill_color:g_color,
+                        x_offset:0,
+                        y_offset:0,
+                        show_text:false
+                     };
+
+                      var cv = new ChromatogramView();
+                      cv.addOverlayText(sample.name, "0%", "95%");
+                      sample.cv = cv;
+                      cv.addToNode($("#chromatogram_container"));
+                      cv.setDimensions(1400, $("#chromatogram_container").height());
+                     
+                      sample.setStyle(style);
+                     
+                     NUM_SAMPLES++;
+                 }
+                 
+                 SAMPLE_MENU.addNewGroup(group);
+             }
+        }
+        
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+       $("#name_input").on("keypress", function(e){
+        
+             if(e.which != 13) return;
+
+            var name_field = $(this);
+
+            var text = $(this).val();
+
+            var req_url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/";
+            req_url += text;
+            req_url += "/property/MolecularFormula/JSON";
+
+             $.ajax({url: encodeURI(req_url),  dataType: "json", success: function(result){
+
+                 var props = result.PropertyTable.Properties[0];
+
+                 var hint_box = $("#formula_hint");
+
+                 var bbox = name_field[0].getBoundingClientRect();
+
+                 hint_box.find("span").html(props.MolecularFormula);
+                 hint_box.css({top:(bbox.top + 24) + "px", left:(bbox.left) + "px", width:bbox.width - 5 + "px"});
+                 hint_box.addClass("visible");
+                 hint_box.attr("data-cid", props.CID);
+
+                 var image_url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/";
+                 image_url += props.CID;
+                 image_url += "/PNG";
+                 image_url = encodeURI(image_url);
+
+                $("#molecule_preview").attr('src', image_url);
+             },
+             error:function(){
+                 
+                 var hint_box = $("#formula_hint");
+                 
+                   var bbox = name_field[0].getBoundingClientRect();
+                  hint_box.css({top:(bbox.top + 24) + "px", left:(bbox.left) + "px", width:bbox.width - 5 + "px"});
+                  hint_box.addClass("visible");
+                  hint_box.find("span").html("not found");
+                  $("#molecule_preview").attr('src', "");
+             }
+            });
+
+        });
+        
+        $("#formula_hint").on("click", function(e){
+         
+            var formula = $(this).find("span").html();
+            
+            var neg_mass = exact_mass(formula, {}, "-H").toFixed(3);
+            var pos_mass = exact_mass(formula, {}, "+H").toFixed(3);
+            
+            $("#mz_input").attr("data-massn", neg_mass);
+            $("#mz_input").attr("data-massp", pos_mass);
+            
+            $("#C13_count").val(0);
+            
+           var comps = formula_from_str(formula);
+            for(var c of comps){
+                
+                if(c.name == "C") {
+                    
+                    $("#C13_count").attr("max", c.count);
+                    break;
+                }
+            }
+            
+            
+            $("#mz_input").attr("data-massp", pos_mass);
+            
+             RECALCULATE_ACTIVE_MZ();
+            
+            
+            
+            $(this).removeClass("visible");
+          
+            e.stopPropagation();
+         })
+        
+        
+        
+         $("#ppm_input").on("input", function(e){  
+             REFRESH_CHROMS(); 
+         });
+         $("#polarity").on("input", function(e){
+             
+             
+             RECALCULATE_ACTIVE_MZ();
+             REFRESH_CHROMS();                    
+         });
+        
+         $("#C13_count").on("input", function(e){
+             
+             
+             RECALCULATE_ACTIVE_MZ();
+             REFRESH_CHROMS();  
+         });
+        
+        
+        function RECALCULATE_ACTIVE_MZ(){
+            
+            
+            var polarity = $("#polarity option:selected").html();
+            var c13_count =  $("#C13_count").val();
+            
+            
+            var mz = parseFloat($("#mz_input").attr("data-massp"));
+            
+            if(polarity == "neg") mz =  parseFloat($("#mz_input").attr("data-massn"));
+            
+            mz += c13_count*1.003355;
+            
+            $("#mz_input").val(mz.toFixed(3));   
+        }
+        
+        
+        $("#mz_input").on("keypress", function(e){
+            
+            var keycode = (e.keyCode ? e.keyCode : e.which);
+            
+            $(this).attr("data-massn", $(this).val());
+            $(this).attr("data-massp", $(this).val());
+            
+            $("#C13_count").val(0);
+            $("#name_input").val("");
+            
+            if(keycode == "13"){
+                //Enter was pressed
+                REFRESH_CHROMS();
+            }
+        })
+        
+        $("#search_for_mz").on("click", function(e){
+
+             REFRESH_CHROMS();
+        });
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+         $("#x_slider").on("input", function(e){  REFRESH_CHROM_OFFSETS();});
+        
+        
+        $("#y_slider").on("input", function(e){
+            
+             REFRESH_CHROM_OFFSETS();
+        
+            $("#chromatogram_container").css("margin-bottom", $(this).val() + "px");
+        });
+        
+         $("#reset_offset").on("click", function(){
+            
+            $("#x_slider").val(0);
+            $("#y_slider").val(0);
+            $("#chromatogram_container").css("margin-bottom","0");
+            
+            REFRESH_CHROM_OFFSETS();
+        })
+        
+         
+        $("#equalize_time").on("click", function(e){
+               
+            var max_t = -1e6;
+            var min_t = 1e6;
+            
+            
+             for(var group of SAMPLE_GROUPS){
+                 
+                 for(var sample of group.getSamples()){
+                     
+                      var cv = sample.cv;
+                      if(cv.domain.max > max_t) max_t = cv.domain.max;
+                      if(cv.domain.min < min_t) min_t = cv.domain.min;
+                 }
+             }
+            
+            
+             for(var group of SAMPLE_GROUPS){
+                 
+                 for(var sample of group.getSamples()){
+                     
+                        sample.cv.setDomain(min_t, max_t);
+                 }
+             }
+
+        });
+        
+         $("#equalize_height").on("click", function(e){
+             
+              var max_h = 0;
+             
+                for(var group of SAMPLE_GROUPS){
+             
+                 for(var sample of group.getSamples()){
+                     
+                      var cv = sample.cv;
+                      if(cv.range.max > max_h) max_h = cv.range.max
+                  }
+                }
+             
+              for(var group of SAMPLE_GROUPS){
+                 
+                 for(var sample of group.getSamples()){
+                     
+                        sample.cv.setRange(0, max_h);
+                 }
+              }
+         });
+        
+        
+        
+         $("#w_center").on("input", function(e){
+             
+            REFRESH_DISPLAY_DOMAINS();
+        });
+        
+        $("#w_width").on("input", function(e){
+
+            REFRESH_DISPLAY_DOMAINS();
+        });
+        
+        $("#scale_window").on("click", function(e){
+            
+             var center_time =  $("#w_center").val()*60;
+             var window_width = $("#w_width").val()*60;
+             
+             var min = Math.max(0, center_time - window_width);
+             var max = center_time + window_width;
+            
+            
+            for(var group of SAMPLE_GROUPS){
+                 
+                 for(var sample of group.getSamples()){
+                     
+                      sample.cv.setDomain(min, max);
+                     console.log("hellow")
+                 }
+             }
+        });
+        
+        
+        
+        $("#opacity_input").on("input", function(e){
+
+            $(".chromatogram").css("opacity", $(this).val());
+        });
+        
+        $("#reset_window").on("click", function(){
+            
+            $("#w_center").val($("#w_center").attr("data-default"));
+             $("#w_width").val($("#w_width").attr("data-default"));
+            
+            REFRESH_DISPLAY_DOMAINS();
+        })
+        
+        function REFRESH_CHROMS(){
+            
+            var mz = parseFloat($("#mz_input").val());
+            var ppm =  parseFloat($("#ppm_input").val());
+            var mz_range = new MZRange(mz, ppm);
+            var polarity = $("#polarity option:selected").html();
+            
+            for(var group of SAMPLE_GROUPS){
+                 
+                 for(var sample of group.getSamples()){
+                     
+                      sample.cv.setChromatogram(sample.getChromatogram(polarity, mz_range));
+                 }
+             }
+        }
+        
+        function REFRESH_CHROM_OFFSETS(){
+            
+            var max_x = $("#x_slider").val(), max_h = $("#y_slider").val();
+             
+            var i = 0, n = NUM_SAMPLES;
+            
+            
+            for(var group of SAMPLE_GROUPS){
+                 
+                 for(var sample of group.getSamples()){
+                     
+                      sample.cv.node.css("margin-left", max_x*1.0*i/n + "px");
+                      sample.cv.node.css("margin-top", max_h*1.0*i/n + "px");
+                      i++;
+                 }
+             }
+        }
+        
+        
+        function REFRESH_DISPLAY_DOMAINS(){
+            
+             var center_time =  $("#w_center").val()*60;
+             var window_width = $("#w_width").val()*60;
+             
+             var min = Math.max(0, center_time - window_width);
+             var max = center_time + window_width;
+             
+             for(var group of SAMPLE_GROUPS){
+                 
+                 for(var sample of group.getSamples()){
+                     
+                      sample.cv.setDisplayDomain(min, max);
+                 }
+             }
+        }
+        
+        
+        
+        $("#background_color").on('move.spectrum', function(e, tinycolor) {
+            
+            
+            console.log($(this).spectrum("get"))
+             $("#visualizer").css("background", tinycolor);
+        });
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        $("#floating_inspector input").on("input", function(e){
+            
+             UPDATE_SAMPLE_CHROMATOGRAM();
+        })
+        
+        
+        $("#stroke_color").on('move.spectrum', function(e, tinycolor) {
+            
+             UPDATE_SAMPLE_CHROMATOGRAM();
+        });
+        
+        $("#fill_color").on('move.spectrum', function(e, tinycolor) {
+            
+             UPDATE_SAMPLE_CHROMATOGRAM();
+        });
+        
+
+        function UPDATE_SAMPLE_CHROMATOGRAM(){
+            
+             var id_string = $("#floating_inspector").attr("linked-sample-ids");
+             var samples = SAMPLES_FROM_ID_STRING(id_string);
+            
+             var style =   {
+
+                        stroke:$("#stroke_toggle").prop("checked"),
+                        fill:$("#fill_toggle").prop("checked"),
+                        stroke_color:$("#stroke_color").spectrum("get"),
+                        stroke_width:$("#stroke_width").val(),
+                        fill_color:$("#fill_color").spectrum("get"),
+                        x_offset: $("#sample_x_offset").val(),
+                        y_offset: $("#sample_y_offset").val(),
+                        show_text:$("#show_name_toggle").prop("checked")
+                     };
+            
+            for(var sample of samples){
+                
+                sample.setStyle(style);
+            } 
+        }
+        
+        
+        
+        
+        
+        
+    
+
+    
+
+    </script>
+</body>
+</html>

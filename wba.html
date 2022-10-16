@@ -1,0 +1,958 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Western Assistant</title>
+   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+    <style>
+        
+        *{
+            
+           font-family: Open Sans;
+            -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+            box-sizing: border-box;
+        }
+    
+        .gel{
+            
+            background: #dde3ed;
+            padding: 20px;
+            height:  500px;
+            width: 500px;
+            display: flex;
+            flex-direction: row;
+            align-content: center;
+            position: relative;
+            border-top:10px solid #dde3ed;
+        }
+        
+        .lane{
+            
+            width: 40px;
+            position: relative;
+            margin-right: 8px;
+            height: calc(100% + 20px);
+            cursor: pointer;
+        }
+        
+        .lane:hover{
+            
+             background: rgba(0,0,0,0.03)
+        }
+        
+        .lane::before{
+            
+            
+            content: "";
+            position: absolute;
+            width: 100%;
+            height:30px;
+            background: #c0cee3;
+            top:-30px;
+            
+        }
+        
+         .lane.active::after{
+            
+            
+            content: "";
+            position: absolute;
+            border: 13px solid transparent;
+            border-top-color: black;
+             left:50%;
+             transform: translateX(-50%);
+                 top:-30px;
+             
+            
+        }
+        
+        .lane.active{
+            
+            background: rgba(0,0,0,0.03)
+        }
+        
+        .lane[data-index=0]{
+            
+            pointer-events: none;
+        }
+        
+        .band{
+            
+            width: 100%;
+            height: 8px;
+            position: absolute;
+            left: 0;
+            background: black;
+            border-radius: 3px;
+        }
+        
+        .band:focus{
+            
+            
+            outline:2px solid white;
+        }
+        
+        .band:focus::before{
+            
+            background:white;
+        }
+        
+        .band[data-name]::before{
+			
+			content: attr(data-name);
+			
+			position: absolute;
+			bottom: 120%;
+			left:50%;
+			transform: translateX(-50%);
+			
+            text-align: center;
+            
+			
+			padding: 0.15em;
+            
+            font-size:8px;
+            font-weight: bolder;
+			
+		}
+        
+        .valid{
+            
+            border: 1px solid green;
+        }
+        
+        
+        .slider {
+          -webkit-appearance: none;
+          width: 100%;
+          height: 6px;
+          background: #bebebe;
+          outline: none;
+          opacity: 0.9;
+          -webkit-transition: .2s;
+          transition: opacity .2s;
+            position: absolute;
+            top:102%;
+            left: 0;
+        }
+
+        .slider:hover {
+          opacity: 1;
+        }
+        
+        .slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 12px;
+          height: 12px;
+          background: black;
+          cursor: pointer;
+            border: 2px solid white;
+        }
+
+        .slider::-moz-range-thumb {
+          appearance: none;
+         width: 12px;
+          height: 12px;
+          background: black;
+          cursor: pointer;
+            border: 2px solid white;
+        }
+        
+        .result_container{
+            
+            width: 100%;
+            margin-top: 6px;
+             height: 390px;
+            overflow-y: scroll;
+        }
+        
+        @keyframes rotation {
+          from {
+            transform:translate(-50%, -50%) rotate(0deg);
+          }
+          to {
+            transform:translate(-50%, -50%) rotate(359deg);
+          }
+        }
+        
+        .result_container::after{
+            
+            
+            content: "";
+            position: absolute;
+            top:50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            text-align: center;
+                
+            border: 4px solid black;
+            border-top: 4px solid transparent;
+            height: 30px;
+            width: 30px;
+            border-radius: 40px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .result_container.loading::after{
+            
+            opacity: 1;
+            
+            animation: rotation 0.4s infinite linear;
+        }
+        
+        .result_container.no_results::after{
+            
+            content: "No results";
+            position: absolute;
+             width: 200px;
+            top:50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: none;
+            opacity: 1;
+        }
+        
+        .result_container.error_results::after{
+            
+             content: "Server error";
+            position: absolute;
+            top:50%;
+            width: 200px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: none;
+            opacity: 1;
+        }
+        
+        .result_container tr{
+            
+            position: relative;
+        }
+        
+        .result_container tr:hover{
+            
+            background: #d1d1d1;
+            cursor: pointer;
+        }
+        
+        .result_container tr:active{
+            
+            background: #b1aeae;
+            cursor: pointer;
+        }
+        
+        
+        .result_container td{
+            
+            padding-left: 20px;
+            border:10px solid transparent;
+             border-bottom-width:20px;
+            vertical-align: top;
+        }
+        
+        .result_container td:nth-child(1){
+            
+            padding-left: 5px;
+            vertical-align: middle;
+        }
+        
+        .result_container td:last-child{
+            
+            padding-right: 10px;
+        }
+        
+        .protein_search_area{
+            
+             position: fixed;
+            top:10px;
+            left: 560px;
+            width: 600px;
+            background: #efefef;
+        }
+        
+        .custom{
+            
+            position: absolute;
+            top:100%;
+        }
+        
+        .custom input{
+            
+            margin-right: 1em;
+            padding: 0.3em;
+        }
+        
+        .custom  input[type=button]{
+            
+            width: 4em;
+        }
+        
+        #name_text{
+            
+            width: 30em;
+            border: 3px solid #5c5c5c;
+        }
+        
+        #size{
+            
+            width: 7em;
+            border: 3px solid #5c5c5c;
+        }
+        
+        #search_text{
+            
+            width: 100%;
+            padding: 0.35em;
+            font-size:15px;
+            border: 3px solid #5c5c5c;
+        }
+        
+        input[type=text]:focus{
+            
+            outline: none;
+            background: #5c5c5c;
+            color:white;
+        }
+        
+        #search_results{
+            
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        .add_to_list_button{
+            
+            
+            background: #4a4a4a;
+            color: white;
+            border-radius: 40px;
+            width: 25px;
+            height: 25px;
+            border: none;
+            font-weight: bolder;
+            cursor: pointer;
+        }
+        
+        *[data-name]:hover::before{
+			
+			content: attr(data-name);
+			
+			position: absolute;
+			bottom: 110%;
+			left:10%;
+			
+			background: #796483;
+			color:white;
+			padding: 0.5em;
+            text-align: center;
+			
+            white-space: nowrap;
+        }
+        
+        #horz_line{
+            
+            height: 1px;
+            background: #404040;
+            left: 0;
+            position: absolute;
+            width: 100%;
+            display: none;
+        }
+        
+        .area{
+            
+            margin-top: 3em;
+            background: #f0f0f0;
+            padding: 0.2em;
+            padding-left: 1em;
+        }
+        
+        .area span{
+            
+            margin-left: 2em;
+        }
+        
+        .area p:first-child{
+            
+            border-bottom: 2px solid #ffffff;
+            font-weight: bolder;
+            font-size: 20px;
+            padding-bottom: 0.5em;
+        }
+        
+        .area span[id]{
+            
+            font-weight: bolder;
+            margin-left: 0.5em;
+        }
+        
+        .area input, select{
+            
+            padding: 0.2em;
+            border:2px solid gray;
+            text-align: center;
+        }
+        
+        .individual_antibody{
+            
+            padding: 0.5em;
+            padding-right: 4em;
+            display: inline-block;
+            background: #98bcc1;
+            margin-right: 1em;
+            margin-bottom: 1em;
+            position: relative;
+            font-size: 12px;
+        }
+        
+        .individual_antibody button{
+            
+            position: absolute;
+            right:0;
+            height: 100%;
+            width:2.5em;
+            top:0;
+            background: #224140;
+            color:white;
+            text-align: center;
+            border:none;
+            border-left: 2px solid white;
+        }
+        
+        
+        #num_proteins, #gel_num{
+            
+            margin-left: 0.2em;
+        }
+    
+        
+        button:hover{
+            
+            opacity: 0.8;
+            cursor: pointer;
+        }
+        
+        @media print{
+            
+            
+            .protein_search_area{
+                display: none;
+            }
+            
+            .gel{
+                
+                position: absolute;
+                left:50%;
+                top:100px;
+                transform: translateX(-50%)
+            }
+            
+            .slider{
+                display: none;
+            }
+            
+            .lane.active{
+                
+                background: none;
+            }
+            
+            .lane.active::after{
+                
+                
+                display: none;
+            }
+            
+        }
+    
+    </style>
+</head>
+<body>
+
+
+
+<div class = "gel">
+    
+    <div id = "horz_line"></div>
+    
+    <div class = "lane" data-index="0"> </div>
+    <div class = "lane active" data-index="1"> </div>
+     <div class = "lane" data-index="2"> </div>
+    <div class = "lane" data-index="3"> </div>
+     <div class = "lane" data-index="4"> </div>
+    <div class = "lane" data-index="5"> </div>
+    <div class = "lane" data-index="6"> </div>
+    <div class = "lane" data-index="7"> </div>
+    <div class = "lane" data-index="8"> </div>
+    <div class = "lane" data-index="9"> </div>
+    
+   <input class = "slider" type="range" min="0" max="100" value="100">
+    
+</div>
+
+
+<div class = "protein_search_area">
+    
+    <input type = "text" id = "search_text" placeholder="protein name...">
+    <div class = "result_container">
+        
+        <table id = "search_results"></table>
+        
+    </div>
+    
+    <div class = "custom">
+        <p>add custom size protein</p>
+        <input id = "add_custom_protein" type = "button" value="+">
+        <input type = "text" id = "name_text" placeholder="name">
+         <input type = "text" id = "size" placeholder="size (kD)">
+    </div>
+</div>
+<div class="area" id="antibody_area">
+    
+     <p> Antibody Area</p>
+    <p id = "antibody_list">
+
+     </p>
+
+ </div>
+ <div class="area"  id="casting_area">
+    
+     <p> Casting Area</p>
+    <p>
+        <span>number of wells per gel:</span>
+         <select id = "num_wells" style="margin:0 1em;">
+             <option>10</option>
+             <option>15</option>
+         </select>
+
+         <span>number of proteins:</span>
+         <span id = "num_proteins">0</span>
+
+         <span>number of samples:</span>
+         <input id = "num_samples" type="number" value = "1" min="1" max="14" style="margin:0 1em;">
+
+         <span>gels required:</span>
+         <span id = "gel_num">0</span>
+     </p>
+
+ </div>
+
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+ <script type="text/javascript">
+
+     function RANDOMGRAY(){
+         
+         var x = Math.random()*100 + 60
+         
+         return "rgb(" + x + ","+ x + ","+ x + ")"
+         
+     }
+     
+     function Protein(size, color, name){
+         
+         this.size = size;
+         this.color = color;
+         
+         if(name == undefined){
+             
+             this.name = size + "kD"
+         }
+         else{
+             
+             this.name = name
+         }
+         
+     }
+     
+     
+     function Gel(node){
+         
+         this.node = node;
+         this.proteins = [];
+         this.t = 1;
+         var _this = this
+         
+         this.addProteinToLane = function(lane_index, protein){
+             
+             var new_band = $("<div class = 'band' tabIndex='-1'></div>")
+             var y = this.getVerticalPositionForProteinSize(protein.size)
+             
+             this.proteins.push(protein);
+             
+             new_band.css({background:protein.color, top:y +"px"})
+             new_band.attr("data-name", protein.name)
+             new_band.attr("data-size", protein.size)
+             
+             new_band.on("keydown", function(e){
+                         
+                 if(e.which==8) {
+                     
+                     $(this).remove();
+                     $("#horz_line").css({display:"none"});
+                     _this.p_count--;
+                 }
+             })
+             
+             new_band.on("focusin", function(){
+         
+                    var y = $(this).position().top + 23;
+                    $("#horz_line").css({display:"block", top:y + "px"})
+             })
+             new_band.on("focusout", function(){
+         
+                 $("#horz_line").css({display:"none"})
+             })
+    
+             
+             
+             this.node.find(".lane[data-index=" + lane_index + "]").append(new_band)
+         }
+         
+         this.addProteinToActiveLane = function(protein){
+             
+             this.addProteinToLane(parseInt($(".lane.active").attr("data-index")), protein);
+             this.incrementProteinCount();
+         }
+         
+         this.getVerticalPositionForProteinSize = function(size){
+             
+             var h = this.node[0].getBoundingClientRect().height;
+             
+             return Math.max(this.t*h*(-0.284*Math.log(size) + 1.56982), 0)
+         }
+         
+         this.setPercentageDone = function(fraction){
+             
+             this.t = fraction;
+             
+             this.node.find(".band").each(function(){
+                 
+                 var size = parseInt($(this).attr("data-size"))
+                  var y = _this.getVerticalPositionForProteinSize(size)
+                 $(this).css({top:y +"px"})
+                 
+             })
+         }
+         
+         
+         this.resetProteinCount = function(){
+             
+             this.p_count = 0;
+         }
+         
+          this.incrementProteinCount = function(){
+             
+             this.p_count++;
+         }
+         
+         this.getProteinCount = function(){
+             
+             return this.p_count;
+         }
+     }
+     
+     
+          
+     
+     var RED_COL = "#de176b"
+     var BLU_COL = "#2e2e8b"
+     
+     
+     var gel = new Gel($(".gel"))
+     
+      $(".slider").on("mousemove", function(e){
+         
+         gel.setPercentageDone($(this).val()/100.0)
+     })
+      $(".slider").on("keydown", function(e){
+         
+         gel.setPercentageDone($(this).val()/100.0)
+     })
+      $(".slider").on("click", function(e){
+         
+         gel.setPercentageDone($(this).val()/100.0)
+     })
+     
+     $(".lane").on("click", function(){
+         
+         
+         $(".lane").removeClass("active");
+         $(this).addClass("active");
+     })
+     
+     $("#add_custom_protein").on("click", function(){
+         
+         
+         var mass = parseInt($('#size').val().replace(",", ""))
+         
+         if(mass > 0){
+             
+             var name = $('#name_text').val().toUpperCase()
+             if(name.length== 0) name = undefined
+             
+             gel.addProteinToActiveLane(new Protein(Math.round(mass), RANDOMGRAY(), name));
+         }
+     })
+     
+     
+   gel.addProteinToLane(0, new Protein(250,BLU_COL))
+    gel.addProteinToLane(0, new Protein(150, BLU_COL))
+     gel.addProteinToLane(0, new Protein(100, BLU_COL))
+     gel.addProteinToLane(0, new Protein(75, RED_COL))
+      gel.addProteinToLane(0, new Protein(50, BLU_COL))
+     gel.addProteinToLane(0, new Protein(37, BLU_COL))
+     gel.addProteinToLane(0, new Protein(25, RED_COL))
+      gel.addProteinToLane(0, new Protein(20, BLU_COL))
+    gel.addProteinToLane(0, new Protein(15, BLU_COL))
+     gel.addProteinToLane(0, new Protein(10, BLU_COL))
+     
+     gel.resetProteinCount();
+     
+     
+     function LINK_STR(txt, href){
+         
+         return "<a target='_blank' href='" + href + "'>" + txt + "</a>"
+     }
+     
+     
+     $("#search_text").on("keydown", function(event){
+         
+         var keycode = (event.keyCode ? event.keyCode : event.which);
+         if(keycode == '13'){
+             
+             $("#search_results").html("");
+             $(".result_container").attr('class', 'result_container');
+             $(".result_container").addClass("loading");
+             GET_PRODUCTS_FROM_VENDOR("cell_signalling", $(this).val())
+             GET_PRODUCTS_FROM_VENDOR("abcam", $(this).val())
+             GET_PRODUCTS_FROM_VENDOR("santa_cruz_biotech", $(this).val())
+         }
+         
+     })
+     
+     function GET_PRODUCTS_FROM_VENDOR(vendor, query){
+
+         var request_object = {vendor:vendor, search_text:query};
+         
+          $.ajax({url: "antibody_vendor_interface.php",
+                type: 'GET',
+                 data:request_object,
+                  timeout: 10000,
+                 success:function(response){
+
+                    if(response.success_code == 1){
+
+                        DID_RECIEVE_PRODUCTS_FROM_SERVER(response.data);
+                    }else{
+
+                        SEARCH_FAILED('error');
+                    }
+                 },
+                  error: function(jqXHR, textStatus, errorThrown){
+
+                         SEARCH_FAILED();
+                     },
+                fail:function(){
+
+                     SEARCH_FAILED();
+                }
+        });
+     }
+     
+     function DID_RECIEVE_PRODUCTS_FROM_SERVER(data){
+         
+         UPDATE_SEARCH_RESULTS(data)
+     }
+     
+     function SEARCH_FAILED(){
+         
+         $(".result_container").removeClass("loading");
+        // $(".result_container").addClass("no_results");
+     }
+     
+     
+    function UPDATE_SEARCH_RESULTS(results){
+        
+        $(".result_container").removeClass("loading")
+        
+        for(var result of results){
+            
+            if(result.mw=="null") continue;
+            
+            var row = $("<tr></tr>")
+            var row_html = ""
+            
+             row_html += "<td  data-name='add to gel'><button class = 'add_to_list_button'>+</button></td>"
+            row_html += "<td>" + result.vendor + "</td>"
+            row_html += "<td>" + LINK_STR(result.title, result.url) + "</td>"
+            row_html += "<td class = 'species'>" + result.species + "</td>"
+            row_html += "<td class = 'mw'>" + result.mw + "</td>"
+            
+            row.html(row_html);
+            row.find('.add_to_list_button').on("click", function(e){
+                
+                var row = $(this).parent().parent();
+                
+                var mw = parseInt(row.find(".mw").html())
+                gel.addProteinToActiveLane(new Protein(mw,RANDOMGRAY(), $("#search_text").val()));
+                UPDATE_GEL_CAST_AREA();
+                
+                var html = '<div class = "individual_antibody">' + row.find("a").html() + '<button>x</button></div>'
+                $("#antibody_list").append(html);
+                $("#antibody_list").find("button").on("click", function(){
+                    
+                    $(this).parent().remove();
+                })
+                
+            })
+            
+            $("#search_results").append(row)   
+        }
+    }
+     
+     
+     
+     
+     
+     $("#num_wells").on("change", function(){
+         
+         UPDATE_GEL_CAST_AREA();
+     })
+     
+     $("#num_samples").on("change", function(){
+         
+         UPDATE_GEL_CAST_AREA();
+     })
+    
+     function VERTICAL_SEPARATION(p1_size, p2_size){
+         
+         return Math.abs(Math.max(500*(-0.284*Math.log(p1_size) + 1.56982), 0) - Math.max(500*(-0.284*Math.log(p2_size) + 1.56982), 0))
+     }
+     
+     
+    function NUM_GELS_TO_POUR(L_szs,P_sizes, well_num_per_gel, num_samples){
+        
+        if(well_num_per_gel -2 < num_samples) return 0;
+        
+        L_szs.sort(function(a, b){return b - a});
+        
+        var ib_bins = [], b_bins = []
+        for(var i = 0; i <= L_szs.length; i++){ 
+           
+            ib_bins.push(0);
+             b_bins.push(0);
+        }
+        b_bins.push(0);
+        
+        var threshold = 15;
+        
+         for(var p of P_sizes){
+             
+             var added_p = false;
+             
+              for(var i = 0; i < L_szs.length; i++) {
+         
+                  var l = L_szs[i];
+                  if(VERTICAL_SEPARATION(p, l) < threshold) {
+                      b_bins[i]++;
+                      added_p = true;
+                      break;
+                  }
+                  
+                   if(p > l){
+                       ib_bins[i]++;
+                      added_p = true;
+                      break;
+                   }
+              }
+             
+             if(added_p == false) ib_bins[ib_bins.length -1]++;
+         }
+        
+        
+        var num_groups = 0;
+        
+        while(ib_bins.reduce(function (s,n){return s + n}) + b_bins.reduce(function (s,n){return s + n}) > 0){
+            
+            var indices_used = [];
+            for(var i = 0; i < ib_bins.length; i++){
+                
+                if(ib_bins[i] > 0){
+                    
+                    ib_bins[i]--;
+                    indices_used.push(i);
+                }
+            }
+            
+            
+            for(var i = 0; i < b_bins.length; i++){
+                
+                if(b_bins[i] > 0){
+                    
+                    var conflict = false;
+                 
+                    for(var index of indices_used){
+                 
+                        if(i == index || i == index-1){
+                            conflict = true;
+                            break;
+                        }
+                    }
+                           
+                    if(conflict == false){ 
+                            b_bins[i]--;
+                            i++;
+                    }
+                }                
+            }
+            
+            num_groups++;
+        }
+        
+        
+        var num_gels = 0;
+        
+        while(num_groups > 0){
+            
+            num_gels++;
+            
+            var emtpy_wells = well_num_per_gel - 1;
+            
+            while(emtpy_wells >= num_samples + 1){
+                
+                emtpy_wells -= (num_samples + 1)
+                num_groups--;
+                if(num_groups == 0) break;
+            }
+        }
+        
+        return num_gels;
+    }
+     
+     function UPDATE_GEL_CAST_AREA(){
+         
+         var num_proteins = parseInt(gel.getProteinCount());
+         $("#num_proteins").html(num_proteins);
+         
+         var num_wells = parseInt($("#num_wells option:checked" ).val());
+         var num_samples = parseInt($("#num_samples").val());
+         
+         var proteins = gel.proteins.slice(-1*num_proteins);
+         var protein_sizes = [];
+         for(var p of proteins){
+             
+             protein_sizes.push(p.size)
+         }
+         
+         var num = NUM_GELS_TO_POUR([10,15,20,25,37,50,75,100,150,250], protein_sizes, num_wells,num_samples);
+         $("#gel_num").html(num);
+     }
+    
+     
+    </script>
+
+</body>
+</html>
