@@ -44,7 +44,7 @@ class DatabaseObj():
 
 		#Read metabolite standard CSV file with names and rts
 		fpath = askopenfilename()
-		std_df = pd.read_csv(fpath)
+		std_df = pd.read_csv(fpath, encoding='ISO-8859-1')
 
 	
 		std_df = std_df.rename(columns={'row identity (main ID)': 'name'})

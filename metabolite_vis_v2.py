@@ -851,9 +851,9 @@ def generateReport():
         group_names[i] = name
         i += 1
 
-    report = MetaboliteReport("cells-NCCFH1-6hr-none-UC13glc-gln-15N-Asn-D4-Cystine-label-asn",
+    report = MetaboliteReport("mouse-serum-and-muscle-young-or-old-w-or-wo-exercise-female-group-serum",
                               iso_dist_data, pool_size_data,
-                              show_iso=True,
+                              show_iso=False,
                               group_names=group_names)
 
     report.configureTitlePage(title=title_str.get(),
