@@ -566,8 +566,8 @@ class MetaboliteApp:
             self.filtered_df_pos.reset_index(drop=True, inplace=True)
 
             # Save the DataFrames to CSV
-            self.filtered_df_neg.to_csv(path_custom_list_neg, index=False)
-            self.filtered_df_pos.to_csv(path_custom_list_pos, index=False)
+            self.filtered_df_neg.to_csv(path_custom_list_neg, index=True)
+            self.filtered_df_pos.to_csv(path_custom_list_pos, index=True)
             self.write_to_terminal("Data saved successfully.")
             
             self.countdown_before_exit(5)
