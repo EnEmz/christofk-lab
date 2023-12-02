@@ -1,0 +1,9 @@
+DirectoryIndex home.html
+
+AuthType Basic
+AuthName "lab"
+AuthUserFile "/home3/christofklab/.htpasswds/public_html/lab/passwd"
+require valid-user
+ErrorDocument 401 "Authorisation Required"
+
+Redirect metq.html /guest/metq.html

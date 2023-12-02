@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christofk Metabolomics Sample Information Sheet</title>
+    <style>
+        
+        *{
+            font-family: 'Helvetica';
+            -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+            box-sizing: border-box;
+        }
+        
+        body{
+            margin: 0;
+        }
+        
+        header{
+            
+            position: fixed;
+            top:0;
+            left: 0;
+            padding: 10px;
+            font-size:25px;
+            line-height: 2.4em;
+            background: white;
+            width:100%;
+             -webkit-box-shadow: 0px 3px 12px 0px rgba(0,0,0,0.14);
+            -moz-box-shadow: 0px 3px 12px 0px rgba(0,0,0,0.14);
+            box-shadow: 0px 3px 12px 0px rgba(0,0,0,0.14);
+            z-index:200;
+        }
+        
+        h1{
+            
+            font-size:1.4em;
+            font-weight: lighter;
+            padding:0.8em;
+             margin:1em 0;
+            background: #bfbfbf;
+            border-top: 2px solid black;
+        }
+        
+        table{
+            
+            border-collapse: collapse;
+        }
+        
+        th{
+            
+            text-align: left;
+            font-weight: normal;
+            margin-bottom: 1em;
+        }
+        
+        .missing_val{
+            
+            border-bottom: 2px solid #ea2d2d !important;
+        }
+        
+        .sample_table{
+            
+            width: 100%;
+        }
+        
+        .experiment_info_table{
+            
+            margin-bottom: 2em;
+        }
+        
+        .experiment_info_table td{
+            
+            padding-bottom: 1em;
+        }
+        
+       .sample_table tr{
+            
+            border-bottom: 0.2em solid #ffffff;
+        }
+        
+        .sample_table tr[data-id="0"] .delete{
+            
+            display: none;
+        }
+        
+        
+        .sample_table label{
+            
+            font-size:13px;
+        }
+
+        .sample_table input:checked + label{
+         
+            color:#334bd1;
+        }
+        
+        p{
+            
+            padding: 0.3em;
+            
+        }
+        
+        td{
+            
+            padding: 0.3em;
+            padding-bottom: 0.6em;
+        }
+        
+        .experiment_info_table td:first-child{
+            
+            text-align: right;
+            vertical-align: top;
+        }
+        
+        th{
+            
+            padding-top: 1em;
+            padding-bottom: 0.5em;
+            vertical-align: bottom;
+            border-bottom: 2px solid black;
+        }
+        
+        td, th{
+            
+            padding-left: 0.7em;
+        }
+    
+        td > button{
+            
+            border-radius: 100%;
+            color:white;
+            border:none;
+            height: 2em;
+            width:2em;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .copy{
+            
+            background: #5d7e63;
+        }
+        
+        .delete{
+            
+            background: #c34338;
+        }
+        
+        input, select{
+            
+             border: 1px solid black;
+            font-weight: bold;
+        }
+        
+        *:focus{
+            
+              outline: 2px solid black;
+        }
+        
+        input{
+            
+            padding: 0.4em;
+        }
+        
+        input:hover{
+            
+             background: #cecece;
+        }
+        
+        p {
+            margin-left:3.5em;
+        }
+        
+        input[type="number"]{
+            
+            width: 6em;
+        }
+        
+        input[type="message"]{
+            
+            width: 20%;
+            height: 8em;
+        }
+        
+        textarea{
+            
+            border: 0.7px solid black;
+            width:40em;
+            height: 9.0em;
+            resize: none;
+            padding: 0.7em;
+            font-weight: bold;
+        }
+        
+        messagearea{
+            
+            display:inline-block;
+        border:0.7px solid #000;
+        padding:5px;
+        }
+        
+        textarea:hover{
+            
+             background: #cecece;
+        }
+        
+        button{
+            
+            position: relative;
+        }
+        
+        button[data-name]:hover::before{
+			
+			content: attr(data-name);
+			
+			position: absolute;
+			bottom: 120%;
+			left:50%;
+			transform: translateX(-50%);
+			width: 200%;
+			
+			background: #333333;
+			color:white;
+			padding: 0.5em;
+			
+		}
+        
+        #download_button{
+            
+            position: absolute;
+            top:50%;
+            right:10%;
+            z-index: 101;
+            transform: translateY(-50%);
+        }
+        
+         #FLASH_MESSAGE{
+            
+            position: fixed;
+            top:20%;
+            left: 50%;
+            transform: translate(-50%, -30%);
+            width: 20em;
+            height: 6em;
+            text-align: center;
+            line-height: 6em;
+             background: #abbec1;
+             
+             z-index: 1000;
+            
+            opacity: 0;
+            pointer-events: none;
+             
+              -webkit-box-shadow: 0px 3px 12px 0px rgba(0,0,0,0.14);
+            -moz-box-shadow: 0px 3px 12px 0px rgba(0,0,0,0.14);
+            box-shadow: 0px 3px 12px 0px rgba(0,0,0,0.14);
+             border:1px solid black;
+        }
+        
+        #FLASH_MESSAGE.show{
+            
+            pointer-events: all;
+            animation:flash 1.3s ease-in-out;
+        }
+        
+        @keyframes flash{ 
+            0%{opacity:0;margin-top: 0px; }
+            10%{opacity:1;margin-top: 15px;}
+            90%{ opacity:1;margin-top: 15px;}
+            100% {opacity:0; margin-top: 0px;}
+        }
+    </style>
+</head>
+
+<body>
+   <header>Christofk Metabolomics Sample Information Sheet <button id = "download_button">DOWNLOAD AS CSV</button></header>
+    <h1 style = "margin-top:4em;">Experiment Info</h1>
+    <table class = "experiment_info_table">
+        
+        <tr>
+            <td>project leader firstname</td>
+            <td><input type = "text" placeholder="jane" class = "required"></td>
+        </tr>
+         <tr>
+            <td>project leader lastname</td>
+            <td><input type = "text" placeholder="student" class = "required"></td>
+        </tr>
+         <tr>
+            <td>extraction date</td>
+            <td><input type = "date" class = "required"></td>
+        </tr>
+         <tr>
+            <td>total sample count</td>
+            <td><input type = "number" min = "1" value = "1" class = "required"></td>
+        </tr>
+         <tr>
+            <td>experiment summary</td>
+             <td><textarea class = "required" placeholder="EXAMPLE: There were 4 groups of mice with 38 mice total. Each mouse was injected with A549 cells and treated based on its group. Group 1: control, Group 2: aspariginase, Group 3: metformin, Group 4: asparaginase and metformin. Xenografts and serum was harvest from each mouse. Serum was harvested before and after treatment.
+"></textarea></td>
+        </tr>
+        <tr>
+            <td>analysis goal</td>
+             <td><textarea class = "required" placeholder="EXAMPLE: Determine the amount of metformin and asparagine in the tumors and the serum.
+"></textarea></td>
+
+        
+        </tr>
+        
+        <tr>
+            <td>advised quantity/sample</td>
+            <td> 
+            <messagearea>
+<pre>
+<b>Tissue: less than 8 mg</b>
+                
+<b>Cells: less than 2 million</b>
+            
+<b>Media and Serum: less than 20 uL</b></pre>
+            </messagearea>
+                
+            </td>
+            
+        </tr>
+        
+    </table>
+    
+    <p>Please contact Nedas &lt;nmatulionis@mednet.ucla.edu&gt; if you have any questions.</p>
+    
+    <h1 style = "margin-bottom: 0; ">Sample Info (Total Count: <span id = "sample_count">0</span>)</h1>
+    <div id = "FLASH_MESSAGE"></div>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+   <script src = "https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.6.0/papaparse.min.js"></script>
+   <script>
+(function (original) {
+  jQuery.fn.clone = function () {
+    var result           = original.apply(this, arguments),
+        my_textareas     = this.find('textarea').add(this.filter('textarea')),
+        result_textareas = result.find('textarea').add(result.filter('textarea')),
+        my_selects       = this.find('select').add(this.filter('select')),
+        result_selects   = result.find('select').add(result.filter('select'));
+
+    for (var i = 0, l = my_textareas.length; i < l; ++i) $(result_textareas[i]).val($(my_textareas[i]).val());
+    for (var i = 0, l = my_selects.length;   i < l; ++i) result_selects[i].selectedIndex = my_selects[i].selectedIndex;
+
+    return result;
+  };
+}) (jQuery.fn.clone);
+    
+       var ROW_CONFIG = "type,name,value \n";
+       ROW_CONFIG += "text-long-R,rep_name \n";
+       ROW_CONFIG += "mc,type,media/serum/cell culture/tissue/xenograft/single compound std/non-biological sample/other (specify) \n";
+       ROW_CONFIG += "text-short-R,subtype \n";
+       ROW_CONFIG += "number,num_replicates,1 \n";
+       ROW_CONFIG += "number,quantity/sample \n";
+       ROW_CONFIG += "mc,quantity unit,cells/uL/mL/ug/mg/other (specify) \n";
+       ROW_CONFIG += "mc,tracers used,none/U-C13 glucose/U-C13 glutamine/U-C13 fructose/U-N15 glutamine/U-C13 methionine/U-C13 serine/1-2 glucose/other (specify) \n";
+       ROW_CONFIG += "mc,extraction method,dH20-80%MeOH (TFMS 10nM)/dH20-MeOH-chloroform/other (specify) \n";
+       ROW_CONFIG += "text-short,prep additives \n";
+    
+    </script>
+   <script>
+       
+       function FLASH_MESSAGE(color, message){
+    
+            $("#FLASH_MESSAGE").css("border-color", color);
+           $("#FLASH_MESSAGE").css("color", color);
+             $("#FLASH_MESSAGE").html(message);
+            $("#FLASH_MESSAGE").addClass("show");
+            setTimeout(function(){$("#FLASH_MESSAGE").removeClass("show");},1400);
+        }
+       
+       function CURRENT_DATE_STRING(){
+
+    var today = new Date();
+    var month = today.getMonth() + 1;
+    if(month < 10) month = "0" + month;
+    var day = today.getDate();
+    if(day < 10) day = "0" + day;
+
+    return today.getFullYear() + "" + month + "" + day;
+}
+       
+       function SampleInfoTable(){
+           
+           var _this = this;
+           this.row_index = 0;
+           
+           this.listening_functions = [];
+           
+           this.node = $("<table></table>");
+           this.node.addClass("sample_table")
+           this.header_row = $("<tr></tr>");
+           this.node.append(this.header_row);
+           
+           this.addNewSampleRowWithConfigData = function (config_text){
+               
+              var config = Papa.parse(config_text, {header:true, trimHeaders:true});
+               
+               var th = $("<th></th>");
+               this.header_row.append(th);
+               this.header_row.append( $("<th></th>"));
+               this.header_row.append( $("<th></th>"));
+
+              var row = $("<tr></tr>");
+              row.attr("data-id", this.row_index);
+               
+               var td = $("<td class = 'index'></td>");
+               row.append(td);
+               
+
+               td = $("<td></td>");
+               var copy_row_button = $("<button>+</button>");
+               copy_row_button.addClass("copy");
+                copy_row_button.attr("data-name", "copy");
+               copy_row_button.attr("data-id", this.row_index);
+               copy_row_button.on("click", function(){
+                   _this.duplicateRowWithID($(this).attr("data-id"));
+                   
+               });
+               td.append(copy_row_button);
+               row.append(td);
+               
+               
+               td = $("<td></td>");
+               var delete_row_button = $("<button>x</button>");
+               delete_row_button.addClass("delete");
+               delete_row_button.attr("data-name", "delete");
+               delete_row_button.attr("data-id", this.row_index);
+               delete_row_button.on("click", function(){
+                   _this.removeRowWithID($(this).attr("data-id"));
+                   
+               });
+               td.append(delete_row_button);
+               row.append(td);
+               
+               for(var r = 0; r < config.data.length; r++){
+                   
+                   th = $("<th></th>");
+                   th.html(config.data[r].name);
+                   this.header_row.append(th);
+                   
+                   td = $("<td></td>");
+                   td.attr("class", config.data[r].name);
+                   td.append(elementFromConfigObject(config.data[r]));
+                   row.append(td);
+               }
+               
+               row.find("input").on("change", function(){
+                   
+                   _this.updateDidOccur();
+               });
+               
+               this.node.append(row);
+              this.row_index++;
+           }
+           
+           this.duplicateRowWithID = function (id){
+              
+               var old_row = this.node.find("tr[data-id = " + id +"]");
+               
+               var new_row = old_row.clone();
+               new_row.attr("data-id", this.row_index);
+               new_row.find(".copy").attr("data-id", this.row_index);
+               new_row.find(".copy").on("click", function(){
+                   
+                   _this.duplicateRowWithID($(this).attr("data-id"));
+               });
+               
+              new_row.find(".delete").attr("data-id", this.row_index);
+               new_row.find(".delete").on("click", function(){
+                   
+                    _this.removeRowWithID($(this).attr("data-id"));
+               });
+              new_row.find("input").on("change", function(){
+                   
+                   _this.updateDidOccur();
+               });
+               
+               
+               new_row.find("select").on("change", function(){
+                           
+                   if ($(this).val().indexOf("other") > -1) {
+
+                      var w = $(this)[0].getBoundingClientRect().right - $(this)[0].getBoundingClientRect().left;
+
+                       var parent =  $(this).parent();
+                       parent.html("");
+
+                       var new_element = $("<input/>");
+                       new_element.attr("type", "text");
+                       new_element.attr("placeholder", "other (specify)");
+                       new_element.css({"width": w + "px"});
+                       new_element.addClass("required");
+                       parent.append(new_element);
+                       new_element[0].focus();
+
+                   }
+               });
+                                         
+               new_row.insertAfter(old_row); 
+               this.row_index++;
+               
+               this.updateDidOccur();
+           }
+           
+            this.removeRowWithID = function (id){
+                
+                this.node.find("tr[data-id = " + id +"]").remove();
+                this.updateDidOccur();
+            }
+           
+           this.addToNode = function(html_node){
+               
+               html_node.append(this.node);
+           }
+           
+           this.updateDidOccur = function(){
+               
+               for(var f of this.listening_functions) f.call();
+           }
+           
+           this.addUpdateTriggerFunction = function(fn){
+               
+                this.listening_functions.push(fn);   
+           }
+           
+           this.getCSVString = function(){
+               
+               var csv_string = "";
+               
+               var abs_num_rows = 0;
+               
+               this.node.find("tr").each(function(row_index, row){
+                   
+                   if(row_index == 0){
+                       
+                       csv_string += "sample_index,";
+                       
+                       $(this).find("th").each(function(){
+                           
+                           if($(this).html().length == 0) return;
+                           
+                           csv_string += $(this).html() + ",";
+                       });
+                       
+                       csv_string += "\n";
+                       return;
+                   }
+                   
+                   var row_str = "";
+                   
+                   $(this).find("td").each(function(data_index, e){
+                       
+                       if(data_index < 3) return;
+                       
+                       var data_cell = $(this);
+                       var val = "";
+            
+                       if (data_cell.find('input').length == 1) {
+                           
+                          val = data_cell.find("input").val();
+                        }
+                       else if (data_cell.has('select').length) {
+                           
+                          val = data_cell.find("option:checked").val();
+                        }
+                       else if (data_cell.has('input[type="checkbox"]').length) {
+                           
+                          data_cell.find("input:checked").each(function(){
+                              
+                              val +=  $(this).attr("data-name") + '&';
+                          });
+                           
+                           if(val.length == 0) val = "none";
+
+                        }
+                       
+                       if(val.length == 0) val = "undefined";
+                       
+                       row_str += val + ",";
+                  });
+                   
+                   var num_reps = parseInt($(this).find(".num_replicates > input").val());
+                   
+                   
+                   for(var i = 0; i < num_reps; i++){
+                       
+                       abs_num_rows++;
+                       
+                       var local_rep_index = i + 1;
+                       
+                       var elements = row_str.split(",");
+                       if(num_reps > 1) elements[0] += "-" + local_rep_index;
+                       
+                       csv_string += abs_num_rows + "," + elements.join(",") + "\n";
+                   }
+                   
+              });
+               
+               return csv_string;
+           }
+       }
+       
+       
+       function elementFromConfigObject(object){
+           
+           var element = null;
+           
+           if(object.type == "mc"){
+               
+               element = $("<select></select>");
+               
+               var values = object.value.split("/");
+               
+               for(var v of values){
+                   
+                   var option = $("<option></option>");
+                   option.html(v);
+                   option.attr("data-name", object.name);
+                   element.append(option);                   
+               }
+               
+                element.on("change", function(){
+                           
+                   if ($(this).val().indexOf("other") > -1) {
+                       
+                       var w = $(this)[0].getBoundingClientRect().right - $(this)[0].getBoundingClientRect().left;
+
+                       var parent =  $(this).parent();
+                       parent.html("");
+
+                       var new_element = $("<input/>");
+                       new_element.attr("type", "text");
+                       new_element.attr("placeholder", "other (specify)");
+                       new_element.addClass("required");
+                       new_element.css({"width": w + "px"});
+                       parent.append(new_element);
+                       new_element[0].focus();
+                   }
+               });
+               
+           }
+           else  if(object.type.indexOf("text") > -1){
+               
+               element = $("<input/>");
+               element.attr("type", "text");
+               element.attr("value", object.value);
+               
+               
+               if(object.type.indexOf("R") > -1) element.addClass("required");
+           }
+            else if(object.type.indexOf("number") > -1){
+               
+               element = $("<input/>");
+               element.attr("type", "number");
+                element.attr("min", "0");
+                
+               if(object.value == undefined) element.attr("value", "0");
+               else element.attr("value", parseFloat(object.value));
+           }
+            else if(object.type.indexOf("list") > -1){
+               
+              element = $("<div></div>");
+               
+               var values = object.value.split("/");
+               
+               for(var v of values){
+                   var option = $("<input>");
+                   option.attr("type", "checkbox");
+                   option.attr("data-name", v);
+                   element.append(option);
+                   
+                   var label = $("<label></label>");
+                   label.html(v);
+                   element.append(label);
+                   element.append("<br>");
+               }
+           }
+           
+           return element;
+       }
+       
+       
+       
+	$("#download_button").on("click", function(){
+        
+            var missing_fields = false;
+
+            $(".required").each(function(){
+
+                var has_value = true;
+
+               if($(this).val().trim().length < 1) has_value = false;
+
+                if(has_value) $(this).removeClass("missing_val");
+                else{
+
+                    missing_fields = true;
+                    $(this).addClass("missing_val");
+                }
+            });
+
+            if(missing_fields){
+
+                FLASH_MESSAGE("black", "required fields missing!");
+                return;
+            }
+
+            var excel_string = "";
+
+            $(".experiment_info_table").find("tr").each(function(){
+
+                $(this).find("td").each(function(index, element){
+
+                    if(index == 0){
+
+                        excel_string += $(this).html().split(" ").join("_") + ",";
+                    }
+                    else{
+
+                        if($(this).find("input").length > 0){
+
+                            var input = $(this).find("input");
+                            if(input.attr("type") == "date"){
+
+                                excel_string += input.val().split("-").join("") + "\n";
+                            }
+                            else{
+
+                                 excel_string += $(this).find("input").val() + "\n";
+                            }
+
+                        }
+                        else if($(this).find("textarea").length > 0){
+
+                            var clean_val = $(this).find("textarea").val().replace(/(\r\n\t|\n|\r\t)/gm,"");
+                            clean_val = clean_val.split(",").join(";");
+
+                            excel_string += clean_val + "\n";
+                        }
+                    }
+                });
+
+            });
+
+
+            excel_string += "\n" + GLOBAL_SAMPLE_TABLE.getCSVString();
+
+            var link = document.createElement('a');
+            link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(excel_string));
+            link.setAttribute('download', CURRENT_DATE_STRING() + "_metabolomics_info_sheet" + ".csv");
+            link.style.display = 'none';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+       
+       
+        
+       var GLOBAL_SAMPLE_TABLE = new SampleInfoTable();
+       GLOBAL_SAMPLE_TABLE.addToNode($("body"));
+       GLOBAL_SAMPLE_TABLE.addNewSampleRowWithConfigData(ROW_CONFIG);
+       
+       GLOBAL_SAMPLE_TABLE.addUpdateTriggerFunction(function(){
+           
+           var count = 0;
+           var num_rows = 1;
+           
+           GLOBAL_SAMPLE_TABLE.node.find("tr td:nth-child(7) input").each(function(){
+               
+               count += parseInt($(this).val());
+           });
+           
+            GLOBAL_SAMPLE_TABLE.node.find(".index").each(function(){
+                
+                $(this).html(num_rows);
+                num_rows++;
+           });
+           
+           $("#sample_count").html(count);
+       });       
+    </script>
+</body>
+</html>
