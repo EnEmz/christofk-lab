@@ -271,6 +271,7 @@ class MetaboliteApp:
                 self.df_analysis_pool = pd.read_excel(analysis_fpath, sheet_name='PoolAfterDF')
             else:
                 self.write_to_terminal("'PoolAfterDF' excel sheet not present.")
+                return
 
             if 'Normalized' in xls.sheet_names:
                 self.df_analysis_iso = pd.read_excel(analysis_fpath, sheet_name='Normalized')
@@ -308,15 +309,16 @@ class MetaboliteApp:
             self.write_to_terminal("No metabolite duplicates found.")
             
         met_list_pool = self.df_analysis_pool['Compound'].str.strip().tolist()
-        met_list_not_pool_set = set(self.met_list_total) - set(met_list_pool)
-        met_list_not_pool = list(met_list_not_pool_set)
+        met_list_not_pool = set(self.met_list_total) - set(met_list_pool)
 
         if self.iso_present:
             met_list_iso = self.df_analysis_iso['Compound'].str.strip().unique().tolist()
-            met_list_not_iso_set = set(self.met_list_total) - set(met_list_iso)
-            met_list_not_iso = list(met_list_not_iso_set)
-            
-        combined_met_list_missing = list(set(met_list_not_pool + met_list_not_iso))
+            met_list_not_iso = set(self.met_list_total) - set(met_list_iso)
+        else:
+            met_list_not_iso = set()
+
+        # Combine the missing metabolite lists from both PoolAfterDF and Normalized (if present)
+        combined_met_list_missing = list(met_list_not_pool.union(met_list_not_iso))
 
         self.df_met_neg['simple_name'] = self.df_met_neg['name'].str.split(' M').str[0]
         self.df_met_pos['simple_name'] = self.df_met_pos['name'].str.split(' M').str[0]
@@ -326,6 +328,7 @@ class MetaboliteApp:
 
         self.filtered_df_neg = self.filtered_df_neg.reset_index(drop=True)
         self.filtered_df_pos = self.filtered_df_pos.reset_index(drop=True)
+
         
         
     def update_listboxes(self):
