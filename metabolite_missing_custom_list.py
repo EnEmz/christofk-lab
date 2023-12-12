@@ -15,11 +15,11 @@ path_current_pos = "C:\\Users\\nmatulionis\\Desktop\\ms1_rt_database_lists\\curr
 # Read the CSV files and extract unique metabolite names
 def get_unique_metabolites(file_path):
     df = pd.read_csv(file_path)
-    metabolites = df['name'].str.split(' M', n=1, expand=True)[0].unique()
+    metabolites = df['name'].str.split(' M', n=1, expand=True)[0].str.strip().unique()
     return metabolites
 
-unique_metabolites_neg = get_unique_metabolites(path_custom_list_neg)
-unique_metabolites_pos = get_unique_metabolites(path_custom_list_pos)
+unique_metabolites_neg = get_unique_metabolites(path_current_neg)
+unique_metabolites_pos = get_unique_metabolites(path_current_pos)
 
 class MetaboliteApp:
     def __init__(self, root):
@@ -90,10 +90,11 @@ class MetaboliteApp:
         self.path_display_frame.grid(row=4, column=0, columnspan=4, sticky='ew', padx=5, pady=5)
         self.path_display_frame.grid_columnconfigure(1, weight=1)
 
-        self.display_path("Custom Met List Neg:", path_custom_list_neg, 0)
-        self.display_path("Custom Met List Pos:", path_custom_list_pos, 1)
-        self.display_path("Full Met List Neg:", path_current_neg, 2)
-        self.display_path("Full Met List Pos:", path_current_pos, 3)
+        # Filepath display for csv files
+        self.display_path_missing("Custom Met List Neg:", path_custom_list_neg, 0)
+        self.display_path_missing("Custom Met List Pos:", path_custom_list_pos, 1)
+        self.display_path_missing("Full Met List Neg:", path_current_neg, 2)
+        self.display_path_missing("Full Met List Pos:", path_current_pos, 3)
 
         # Edit paths button
         edit_paths_button = tk.Button(self.tab_missing_mets_detection, text="Edit Paths", command=self.edit_paths)
@@ -191,7 +192,6 @@ class MetaboliteApp:
         
         
     def setup_metabolomics_conversion_ui(self):
-        
         # Conversion Section
         normalization_label = tk.Label(self.tab_metabolomics_conversion, text="Data Conversion", font=("Helvetica", 14))
         normalization_label.pack(pady=(20, 10))
@@ -224,12 +224,12 @@ class MetaboliteApp:
         self.normalization_file_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
         normalization_file_button = tk.Button(normalization_file_frame, text="Upload Normalization File", command=self.upload_normalization_file)
         normalization_file_button.pack(side=tk.RIGHT, padx=5)
-
+        
         # Frame for normalization options
         normalization_frame = tk.Frame(self.tab_metabolomics_conversion)
         normalization_frame.pack(pady=5)
-
-        # Pool Normalize by Label and Combobox
+        
+         # Pool Normalize by Label and Combobox
         pool_normalize_label = tk.Label(normalization_frame, text="Pool Normalize by:")
         pool_normalize_label.grid(row=0, column=0, padx=5)
 
@@ -247,9 +247,56 @@ class MetaboliteApp:
         self.isotopologue_normalize_combobox['values'] = ('none', 'Glucose M6', 'Glutamine M5')
         self.isotopologue_normalize_combobox.grid(row=0, column=3, padx=5)
         
-        # Button for triggering data normalization
-        self.normalize_button = tk.Button(self.tab_metabolomics_conversion, text="Normalize Data", command=self.normalize_data)
-        self.normalize_button.pack(pady=10)
+        # Button for triggering pool data normalization
+        self.normalize_pool_button = tk.Button(normalization_frame, text="Normalize Pool Data", command=self.normalize_pool_data)
+        self.normalize_pool_button.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky='ew')
+
+        # Button for triggering isotopologue data normalization
+        self.normalize_iso_button = tk.Button(normalization_frame, text="Normalize Iso Data", command=self.normalize_iso_data)
+        self.normalize_iso_button.grid(row=1, column=2, columnspan=2, padx=5, pady=5, sticky='ew')
+
+        # File Combiner Section
+        combiner_label = tk.Label(self.tab_metabolomics_conversion, text="File Combiner", font=("Helvetica", 14))
+        combiner_label.pack(pady=(20, 10))
+
+        # Main File Upload
+        self.main_file_frame = tk.Frame(self.tab_metabolomics_conversion)
+        self.main_file_frame.pack(fill='x', pady=5)
+        self.main_file_path_entry = tk.Entry(self.main_file_frame)
+        self.main_file_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        main_upload_button = tk.Button(self.main_file_frame, text="Upload Main File", command=lambda: self.upload_file(self.main_file_path_entry))
+        main_upload_button.pack(side=tk.RIGHT, padx=5)
+
+        # Additional File Upload
+        self.additional_file_frame = tk.Frame(self.tab_metabolomics_conversion)
+        self.additional_file_frame.pack(fill='x', pady=5)
+        self.add_file_path_entry = tk.Entry(self.additional_file_frame)
+        self.add_file_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        additional_upload_button = tk.Button(self.additional_file_frame, text="Upload Additional File", command=lambda: self.upload_file(self.add_file_path_entry))
+        additional_upload_button.pack(side=tk.RIGHT, padx=5)
+
+        # Export File Name Entry and Combine Button
+        self.combine_frame = tk.Frame(self.tab_metabolomics_conversion)
+        self.combine_frame.pack(fill='x', pady=10)
+        tk.Label(self.combine_frame, text="Export File Name:").pack(side=tk.LEFT, padx=5)
+        self.export_file_name_entry = tk.Entry(self.combine_frame)
+        self.export_file_name_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+        self.combine_button = tk.Button(self.combine_frame, text="Combine Files", command=self.combine_files)
+        # Place Combine button in the center
+        self.combine_button.pack(side=tk.LEFT, padx=(5, 0))
+        
+        # Adjust the combine button to center it below the file path entries
+        self.combine_frame.pack_configure(pady=(5, 10))
+        self.combine_button.pack_configure(side=tk.LEFT, padx=5, expand=True)
+        
+        # Create a frame specifically for displaying paths in this tab
+        self.path_display_frame_conversion = tk.LabelFrame(self.tab_metabolomics_conversion, text="File Paths")
+        self.path_display_frame_conversion.pack(side='bottom', fill='x', padx=5, pady=5)
+        
+        # Use display_path to add paths
+        self.display_path_conversion("Full Met List Neg:", path_current_neg, 0)
+        self.display_path_conversion("Full Met List Pos:", path_current_pos, 1)
+
                     
 
     def upload_csv_file(self):
@@ -288,11 +335,10 @@ class MetaboliteApp:
                 widget.insert(index, new_value)
                 self.write_to_terminal(f"RT updated from {current_value} to {new_value}")
         
-    def display_path(self, label, path, row):
-        tk.Label(self.path_display_frame, text=label).grid(row=row, column=0, sticky=tk.W, padx=5)
-        path_label = tk.Label(self.path_display_frame, text=path, anchor='center')
-        path_label.grid(row=row, column=1, sticky='ew', padx=5)
-
+    def display_path_missing(self, label, path, row):
+        tk.Label(self.path_display_frame, text=label).grid(row=row, column=0, sticky=tk.W, padx=5, pady=2)
+        path_label = tk.Label(self.path_display_frame, text=path, anchor='w')
+        path_label.grid(row=row, column=1, sticky='ew', padx=5, pady=2)
         self.path_display_frame.grid_rowconfigure(row, weight=1)
 
     def edit_paths(self):
@@ -335,10 +381,10 @@ class MetaboliteApp:
         path_current_neg = self.path_entries["Full Met List Neg:"].get()
         path_current_pos = self.path_entries["Full Met List Pos:"].get()
 
-        self.display_path("Custom Met List Neg:", path_custom_list_neg, 0)
-        self.display_path("Custom Met List Pos:", path_custom_list_pos, 1)
-        self.display_path("Full Met List Neg:", path_current_neg, 2)
-        self.display_path("Full Met List Pos:", path_current_pos, 3)
+        self.display_path_missing("Custom Met List Neg:", path_custom_list_neg, 0)
+        self.display_path_missing("Custom Met List Pos:", path_custom_list_pos, 1)
+        self.display_path_missing("Full Met List Neg:", path_current_neg, 2)
+        self.display_path_missing("Full Met List Pos:", path_current_pos, 3)
 
         edit_window.destroy()
         
@@ -692,9 +738,9 @@ class MetaboliteApp:
             df.columns = [self.replace_p_with_dot(col) for col in df.columns]
 
             if self.labelling_present_var.get():
-                self.save_csv_file(df, file_path)
+                self.convert_save_csv_file(df, file_path)
             else:
-                self.save_excel_file(df, file_path)
+                self.convert_save_excel_file(df, file_path)
 
         except Exception as e:
             self.write_to_terminal(f"Error in file conversion: {e}")
@@ -702,12 +748,12 @@ class MetaboliteApp:
     def replace_p_with_dot(self, string):
         return re.sub(r'(\d)p(\d)', r'\1.\2', string)
 
-    def save_csv_file(self, df, file_path):
+    def convert_save_csv_file(self, df, file_path):
         new_file_path = file_path.replace('.csv', '_edited.csv')
         df.to_csv(new_file_path, index=False)
         self.write_to_terminal(f"File saved successfully as {new_file_path}")
 
-    def save_excel_file(self, df, file_path):
+    def convert_save_excel_file(self, df, file_path):
         new_file_path = file_path.replace('.csv', '_edited.xlsx')
         df.drop(columns=['Formula', 'IsotopeLabel'], errors='ignore', inplace=True)
         with pd.ExcelWriter(new_file_path) as writer:
@@ -723,12 +769,50 @@ class MetaboliteApp:
             self.write_to_terminal("Normalization file uploaded successfully")
         else:
             self.write_to_terminal("No file selected")
-        
-        
-    def normalize_data(self):
-        pool_norm_method = self.pool_normalize_var.get()
-        isotopologue_norm_method = self.isotopologue_normalize_var.get()
+    
+    
+    def normalize_iso_data(self):
         normalization_file_path = self.normalization_file_entry.get()
+        isotopologue_norm_method = self.isotopologue_normalize_var.get()
+        self.write_to_terminal(f"Normalization selected: Isotopologue - {isotopologue_norm_method}")
+        
+        # Check if the file is uploaded and is an Excel file
+        if not normalization_file_path or not self.is_excel_file(normalization_file_path):
+            self.write_to_terminal("No valid Excel file selected for normalization.")
+            return
+        
+        try:
+            xls = pd.ExcelFile(normalization_file_path)
+            if "Corrected" not in xls.sheet_names:
+                self.write_to_terminal("'Corrected' sheet not found in the Excel file.")
+                return
+
+            # Load PoolAfterDF sheet for further processing
+            df_pool = pd.read_excel(normalization_file_path, sheet_name='Corrected')
+
+            if isotopologue_norm_method == 'none':
+                return
+            
+            # Normalization logic based on isotopologue normalization method
+            # Check for isotopologue normalization
+            if isotopologue_norm_method != 'none':
+                
+                # Load Corrected sheet for further processing
+                df_corrected = pd.read_excel(normalization_file_path, sheet_name='Corrected')
+                # Implement isotopologue normalization logic here
+                # ...
+
+            self.write_to_terminal("Normalization completed.")
+            
+        except Exception as e:
+            self.write_to_terminal(f"Error during pool normalization: {e}")
+        
+        
+    def normalize_pool_data(self):
+        
+        normalization_file_path = self.normalization_file_entry.get()
+        pool_norm_method = self.pool_normalize_var.get()
+        self.write_to_terminal(f"Normalization selected: Pool - {pool_norm_method}")
 
         # Check if the file is uploaded and is an Excel file
         if not normalization_file_path or not self.is_excel_file(normalization_file_path):
@@ -741,8 +825,9 @@ class MetaboliteApp:
                 self.write_to_terminal("'PoolAfterDF' sheet not found in the Excel file.")
                 return
 
-            # Load PoolAfterDF sheet for further processing
-            df_pool = pd.read_excel(normalization_file_path, sheet_name='PoolAfterDF')
+             # Load PoolAfterDF sheet for further processing
+            df_pool_original = pd.read_excel(normalization_file_path, sheet_name='PoolAfterDF')
+            df_pool_normalized = df_pool_original.copy()  # Make a copy for normalization
 
             if pool_norm_method == 'none':
                 return
@@ -755,39 +840,146 @@ class MetaboliteApp:
                 # Normalize PoolAfterDF by TIC values
                 df_tic = pd.read_excel(normalization_file_path, sheet_name='TIC')
                 
-                for index, row in df_pool.iterrows():
+                for index, row in df_pool_normalized.iterrows():
                     compound = row['Compound']
-                    is_neg = compound in self.unique_metabolites_neg
-                    is_pos = compound in self.unique_metabolites_pos
+                    if 'quantity/sample' in compound.lower():
+                        continue
+                    
+                     # Set is_neg to true for 'trifluoromethanesulfonate'
+                    if 'trifluoromethanesulfonate' in compound.lower():
+                        is_neg = True
+                    else:
+                        is_neg = compound in unique_metabolites_neg
+
+                    is_pos = compound in unique_metabolites_pos
+                    
                     if is_neg or is_pos:
                         tic_row = df_tic.loc[df_tic['row identity (main ID)'] == ('TIC_neg' if is_neg else 'TIC_pos')]
                         if tic_row.empty:
-                            self.write_to_terminal(f"No TIC values found for {'negative' if is_neg else 'positive'} ions.")
+                            self.write_to_terminal(f"No TIC values found for {'negative (TIC_neg)' if is_neg else 'positive (TIC_pos)'} ions.")
                             return
-                        for col in df_pool.columns[1:]:
-                            df_pool.at[index, col] = df_pool.at[index, col] / tic_row.iloc[0][col]
+                        for col in df_pool_normalized.columns[1:]:
+                            df_pool_normalized.at[index, col] = df_pool_normalized.at[index, col] / tic_row.iloc[0][col]
                     else:
                         self.write_to_terminal(f"Compound {compound} not found in positive or negative metabolite lists.")
-                        return
+                        continue
 
             elif pool_norm_method != "TIC":
                 # For Custom or any other metabolite selected from the combobox
                 normalization_metabolite = pool_norm_method
-                if normalization_metabolite not in df_pool['Compound'].values:
+                normalization_row = df_pool_normalized[df_pool_normalized['Compound'] == normalization_metabolite]
+
+                if normalization_row.empty:
                     self.write_to_terminal(f"Normalization metabolite '{normalization_metabolite}' not found in 'Compound' column.")
-                    return
+                    pass
 
-                # Normalization logic for the selected metabolite
-                # ...
+                # Extracting the row as a Series for easy division
+                normalization_values = normalization_row.iloc[0][1:]
 
-            self.write_to_terminal(f"Normalization selected: Pool - {pool_norm_method}, Isotopologue - {isotopologue_norm_method}")
-            # Additional normalization logic based on isotopologue normalization method
-            # ...
+                # Normalize other rows by the selected metabolite's values
+                for index, row in df_pool_normalized.iterrows():
+                    if row['Compound'] != normalization_metabolite:
+                        for col in df_pool_normalized.columns[1:]:
+                            df_pool_normalized.at[index, col] = df_pool_normalized.at[index, col] / normalization_values[col]
 
-            self.write_to_terminal("Normalization completed.")
+                self.write_to_terminal(f"Pool data normalized using the compound '{normalization_metabolite}'.")
+                
+            # Export the normalized data
+            self.export_normalized_pool_data(df_pool_original, df_pool_normalized)
 
         except Exception as e:
-            self.write_to_terminal(f"Error during normalization: {e}")
+            self.write_to_terminal(f"Error during pool normalization: {e}")
+            
+            
+    def export_normalized_pool_data(self, df_pool_original, df_pool_normalized):
+        normalization_file_path = self.normalization_file_entry.get()
+        
+        if not normalization_file_path or not self.is_excel_file(normalization_file_path):
+            self.write_to_terminal("No valid Excel file selected for export.")
+            return
+
+        try:
+            # Create new file path with '_normalized' appended
+            new_file_path = normalization_file_path.rsplit('.', 1)[0] + '_normalized.xlsx'
+
+            # Read the original Excel file
+            xls = pd.ExcelFile(normalization_file_path)
+
+            # Prepare a writer object
+            with pd.ExcelWriter(new_file_path) as writer:
+                # Write the original PoolAfterDF data as 'Unnormalized Pool'
+                df_pool_original.to_excel(writer, sheet_name='Unnormalized Pool', index=False)
+
+                # Write the normalized PoolAfterDF data
+                df_pool_normalized.to_excel(writer, sheet_name='PoolAfterDF', index=False)
+
+                # Copy all other sheets from the original file
+                for sheet_name in xls.sheet_names:
+                    if sheet_name not in ['PoolAfterDF']:
+                        df_sheet = pd.read_excel(normalization_file_path, sheet_name=sheet_name)
+                        df_sheet.to_excel(writer, sheet_name=sheet_name, index=False)
+
+            self.write_to_terminal(f"Exported normalized data to {new_file_path}")
+
+        except Exception as e:
+            self.write_to_terminal(f"Error during data export: {e}")
+            
+            
+    def display_path_conversion(self, label, path, row):
+        # Create labels for the path and place them in the conversion path display frame
+        tk.Label(self.path_display_frame_conversion, text=label).grid(row=row, column=0, sticky=tk.W, padx=5, pady=2)
+        path_label = tk.Label(self.path_display_frame_conversion, text=path, anchor='w')
+        path_label.grid(row=row, column=1, sticky='ew', padx=5, pady=2)
+        self.path_display_frame_conversion.grid_rowconfigure(row, weight=1)  
+        
+        
+    def create_file_upload_ui(self, parent, button_text, row):
+        file_path_frame = tk.Frame(parent)
+        file_path_frame.grid(row=row, column=0, columnspan=2, sticky='ew', padx=5, pady=5)
+
+        file_path_entry = tk.Entry(file_path_frame)
+        file_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+        upload_button = tk.Button(file_path_frame, text=button_text, command=lambda: self.upload_file(file_path_entry))
+        upload_button.pack(side=tk.RIGHT, padx=5)
+
+        return file_path_entry      
+    
+    def upload_file(self, entry):
+        file_path = filedialog.askopenfilename()
+        if file_path:
+            entry.delete(0, tk.END)
+            entry.insert(0, file_path)
+            
+    def combine_files(self):
+        main_file_path = self.main_file_path_entry.get()
+        add_file_path = self.add_file_path_entry.get()
+        export_file_name = self.export_file_name_entry.get().strip()
+
+        if not main_file_path or not add_file_path or not export_file_name:
+            self.write_to_terminal("Please upload both files and specify an export file name.")
+            return
+
+        try:
+            # Read the Excel files
+            df_main_pool = pd.read_excel(main_file_path, sheet_name="PoolAfterDF")
+            df_add_pool = pd.read_excel(add_file_path, sheet_name="PoolAfterDF")
+
+            # Combine the dataframes
+            df_main_pool['Compound'] = df_main_pool['Compound'].str.strip()
+            df_add_pool['Compound'] = df_add_pool['Compound'].str.strip()
+            df_comb = df_main_pool.merge(df_add_pool, on='Compound', how='outer')
+            df_comb = df_comb.fillna(0)
+
+            # Export the combined dataframe
+            export_dir = "C:/Users/nmatulionis/Desktop/"
+            df_comb.T.reset_index().T.to_excel(export_dir + export_file_name, sheet_name='PoolAfterDF', index=False, header=None)
+
+            self.write_to_terminal(f"Files combined and saved as {export_dir + export_file_name}")
+
+        except Exception as e:
+            self.write_to_terminal(f"Error during file combination: {e}")
+    
 
                 
             
