@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox, filedialog, simpledialog
 from pandastable import Table
 import re
@@ -10,6 +11,15 @@ path_custom_list_pos = "C:\\Users\\nmatulionis\\Desktop\\ms1_rt_database_lists\\
 
 path_current_neg = "C:\\Users\\nmatulionis\\Desktop\\ms1_rt_database_lists\\current_zic_philic_ms1_rt_C13_neg.csv"
 path_current_pos = "C:\\Users\\nmatulionis\\Desktop\\ms1_rt_database_lists\\current_zic_philic_ms1_rt_C13_pos.csv"
+
+# Read the CSV files and extract unique metabolite names
+def get_unique_metabolites(file_path):
+    df = pd.read_csv(file_path)
+    metabolites = df['name'].str.split(' M', n=1, expand=True)[0].unique()
+    return metabolites
+
+unique_metabolites_neg = get_unique_metabolites(path_custom_list_neg)
+unique_metabolites_pos = get_unique_metabolites(path_custom_list_pos)
 
 class MetaboliteApp:
     def __init__(self, root):
@@ -25,29 +35,46 @@ class MetaboliteApp:
         self.updating_selection = False
         self.prevent_loop = False
         
+        self.notebook = ttk.Notebook(root)
+        self.notebook.pack(expand=True, fill='both')
+        self.tab_metabolomics_conversion = ttk.Frame(self.notebook)
+        self.tab_missing_mets_detection = ttk.Frame(self.notebook)
+
+        self.notebook.add(self.tab_metabolomics_conversion, text='Metabolomics Conversion Normalization')
+        self.notebook.add(self.tab_missing_mets_detection, text='Missing Mets Detection')
+        
+        # Add the terminal frame at the bottom
+        self.terminal_frame = tk.Frame(self.root)
+        self.terminal_frame.pack(fill='x', side='bottom')
+        self.terminal = tk.Text(self.terminal_frame, height=10, bg='black', fg='white')
+        self.terminal.pack(fill='x')
+        
         self.df_met_neg = pd.read_csv(path_current_neg, index_col='index')
         self.df_met_pos = pd.read_csv(path_current_pos, index_col='index')
         
         self.df_met_total = pd.concat([self.df_met_neg, self.df_met_pos], ignore_index=True)
         self.met_list_total = self.df_met_total['name'].str.split(' M').str[0].unique().tolist()
 
-        self.setup_ui()
-
-    def setup_ui(self):
         self.root.title("Metabolite Data Editor")
         self.root.geometry("1000x1200")
+
+        self.setup_missing_mets_ui()
+        self.setup_metabolomics_conversion_ui()
+
+
+    def setup_missing_mets_ui(self):
         listbox_font = ("Helvetica", 12)
         
-        # Configure the main window's grid
-        self.root.grid_rowconfigure(1, weight=1)  # Allocate extra space to the row with listboxes
-        self.root.grid_columnconfigure(0, weight=1)  # Negative Data
-        self.root.grid_columnconfigure(1, weight=0)  # Negative RT
-        self.root.grid_columnconfigure(2, weight=1)  # Positive Data
-        self.root.grid_columnconfigure(3, weight=0)  # Positive RT
+        # Configure the grid for the Missing Mets Detection tab
+        self.tab_missing_mets_detection.grid_rowconfigure(1, weight=1)
+        self.tab_missing_mets_detection.grid_columnconfigure(0, weight=1)  # Negative Data
+        self.tab_missing_mets_detection.grid_columnconfigure(1, weight=0)  # Negative RT
+        self.tab_missing_mets_detection.grid_columnconfigure(2, weight=1)  # Positive Data
+        self.tab_missing_mets_detection.grid_columnconfigure(3, weight=0)  # Positive RT
         
         
         # File path entry and Load button frame
-        file_path_frame = tk.Frame(self.root)
+        file_path_frame = tk.Frame(self.tab_missing_mets_detection)
         file_path_frame.grid(row=0, column=0, columnspan=3, sticky='ew', padx=5, pady=5)
 
         # Text entry for file path
@@ -59,7 +86,7 @@ class MetaboliteApp:
         load_button.pack(side=tk.RIGHT, padx=5)
 
         # Path configuration frame
-        self.path_display_frame = tk.LabelFrame(self.root, text="Current File Paths")
+        self.path_display_frame = tk.LabelFrame(self.tab_missing_mets_detection, text="Current File Paths")
         self.path_display_frame.grid(row=4, column=0, columnspan=4, sticky='ew', padx=5, pady=5)
         self.path_display_frame.grid_columnconfigure(1, weight=1)
 
@@ -69,11 +96,11 @@ class MetaboliteApp:
         self.display_path("Full Met List Pos:", path_current_pos, 3)
 
         # Edit paths button
-        edit_paths_button = tk.Button(self.root, text="Edit Paths", command=self.edit_paths)
+        edit_paths_button = tk.Button(self.tab_missing_mets_detection, text="Edit Paths", command=self.edit_paths)
         edit_paths_button.grid(row=5, column=0, columnspan=1, sticky='ew', padx=5, pady=5)
 
         # Negative Data frame
-        frame_neg = tk.Frame(root)
+        frame_neg = tk.Frame(self.tab_missing_mets_detection)
         frame_neg.grid(row=1, column=0, sticky='nsew', padx=5, pady=5)
         frame_neg.grid_rowconfigure(0, weight=1)
         frame_neg.grid_columnconfigure(0, weight=1)
@@ -88,7 +115,7 @@ class MetaboliteApp:
         self.button_del_neg.pack(fill='x')
         
         # Negative rt frame
-        self.frame_rt_neg = tk.Frame(self.root)
+        self.frame_rt_neg = tk.Frame(self.tab_missing_mets_detection)
         self.frame_rt_neg.grid(row=1, column=1, sticky='nsew', padx=5, pady=5)
         label_rt_neg = tk.Label(self.frame_rt_neg, text="Negative RT")
         label_rt_neg.pack(fill='x')
@@ -96,7 +123,7 @@ class MetaboliteApp:
         self.listbox_rt_neg.pack(fill="both", expand=True)
         
         # Positive Data frame
-        frame_pos = tk.Frame(root)
+        frame_pos = tk.Frame(self.tab_missing_mets_detection)
         frame_pos.grid(row=1, column=2, sticky='nsew', padx=5, pady=5)
         frame_pos.grid_rowconfigure(0, weight=1)  # Add weight to the row inside frame_pos
         frame_pos.grid_columnconfigure(0, weight=1)
@@ -111,7 +138,7 @@ class MetaboliteApp:
         self.button_del_pos.pack(fill='x')
 
         # Positive rt frame
-        self.frame_rt_pos = tk.Frame(self.root)
+        self.frame_rt_pos = tk.Frame(self.tab_missing_mets_detection)
         self.frame_rt_pos.grid(row=1, column=3, sticky='nsew', padx=5, pady=5)
         label_rt_pos = tk.Label(self.frame_rt_pos, text="Positive RT")
         label_rt_pos.pack(fill='x')
@@ -120,22 +147,22 @@ class MetaboliteApp:
         
         # Initialize a Spinbox for M number input
         max_m_value = 10
-        self.m_number_spinbox = CustomSpinbox(self.root, from_=0, to=max_m_value, write_to_terminal=self.write_to_terminal, initial_value=0)
-        self.m_number_label = tk.Label(self.root, text="Enter M#:")
+        self.m_number_spinbox = CustomSpinbox(self.tab_missing_mets_detection, from_=0, to=max_m_value, write_to_terminal=self.write_to_terminal, initial_value=0)
+        self.m_number_label = tk.Label(self.tab_missing_mets_detection, text="Enter M#:")
         self.m_number_label.grid(row=2, column=1, sticky='ew', padx=5, pady=5)
         
         # Add a label to display the text "Max M value:"
-        self.max_m_label_text = tk.Label(self.root, text="Max M value:")
+        self.max_m_label_text = tk.Label(self.tab_missing_mets_detection, text="Max M value:")
         self.max_m_label_text.grid(row=3, column=1, sticky='ew', padx=5, pady=5)
 
         # Add another label to display the actual max M value
-        self.max_m_label = tk.Label(self.root, text="")
+        self.max_m_label = tk.Label(self.tab_missing_mets_detection, text="")
         self.max_m_label.grid(row=3, column=2, sticky='ew', padx=5, pady=5)
 
         # Save and quit buttons
-        self.button_save = tk.Button(root, text="Save Data", command=self.save_data)
+        self.button_save = tk.Button(self.tab_missing_mets_detection, text="Save Data", command=self.save_data)
         self.button_save.grid(row=2, column=0, columnspan=1, sticky='ew', padx=5, pady=5)
-        button_quit = tk.Button(root, text="Quit", command=root.destroy)
+        button_quit = tk.Button(self.tab_missing_mets_detection, text="Quit", command=root.destroy)
         button_quit.grid(row=3, column=0, columnspan=1, sticky='ew', padx=5, pady=5)
 
         self.button_del_neg.config(state='disabled')
@@ -162,11 +189,80 @@ class MetaboliteApp:
         self.listbox_pos.bind('<<ListboxSelect>>', self.on_metabolite_select_pos)
         self.listbox_rt_pos.bind('<<ListboxSelect>>', self.on_rt_select_pos)
         
-        # Add a terminal-like frame to the bottom
-        self.terminal_frame = tk.Frame(self.root)
-        self.terminal_frame.grid(row=6, column=0, columnspan=4, sticky='ew', padx=5, pady=5)
-        self.terminal = tk.Text(self.terminal_frame, height=6, bg='black', fg='white')
-        self.terminal.pack(fill='both', expand=True)
+        
+    def setup_metabolomics_conversion_ui(self):
+        
+        # Conversion Section
+        normalization_label = tk.Label(self.tab_metabolomics_conversion, text="Data Conversion", font=("Helvetica", 14))
+        normalization_label.pack(pady=(20, 10))
+        
+        # Upload CSV File UI
+        self.file_path_frame_conv = tk.Frame(self.tab_metabolomics_conversion)
+        self.file_path_frame_conv.pack(fill='x', pady=15)
+        self.file_path_entry_conv = tk.Entry(self.file_path_frame_conv)
+        self.file_path_entry_conv.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        self.upload_button_conv = tk.Button(self.file_path_frame_conv, text="Upload Metabolomics CSV File", command=self.upload_csv_file)
+        self.upload_button_conv.pack(side=tk.RIGHT, padx=5)
+        
+        # Checkbox for "Labelling Present"
+        self.labelling_present_var = tk.BooleanVar()
+        self.checkbox_labelling = tk.Checkbutton(self.tab_metabolomics_conversion, text="Labelling Present", variable=self.labelling_present_var)
+        self.checkbox_labelling.pack(pady=10)
+
+        # Convert button
+        self.convert_button = tk.Button(self.tab_metabolomics_conversion, text="Convert Metabolomics File", command=self.convert_metabolomics_file)
+        self.convert_button.pack(pady=10)
+        
+        # Normalization Section
+        normalization_label = tk.Label(self.tab_metabolomics_conversion, text="Normalization", font=("Helvetica", 14))
+        normalization_label.pack(pady=(20, 10))
+
+        # Frame for normalization file upload
+        normalization_file_frame = tk.Frame(self.tab_metabolomics_conversion)
+        normalization_file_frame.pack(fill='x', pady=10)
+        self.normalization_file_entry = tk.Entry(normalization_file_frame)
+        self.normalization_file_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        normalization_file_button = tk.Button(normalization_file_frame, text="Upload Normalization File", command=self.upload_normalization_file)
+        normalization_file_button.pack(side=tk.RIGHT, padx=5)
+
+        # Frame for normalization options
+        normalization_frame = tk.Frame(self.tab_metabolomics_conversion)
+        normalization_frame.pack(pady=5)
+
+        # Pool Normalize by Label and Combobox
+        pool_normalize_label = tk.Label(normalization_frame, text="Pool Normalize by:")
+        pool_normalize_label.grid(row=0, column=0, padx=5)
+
+        self.pool_normalize_var = tk.StringVar(value='none')  # Default value set to 'none'
+        self.pool_normalize_combobox = ttk.Combobox(normalization_frame, textvariable=self.pool_normalize_var, width=15)
+        self.pool_normalize_combobox['values'] = ('none', 'TIC', 'Custom')
+        self.pool_normalize_combobox.grid(row=0, column=1, padx=15)
+
+        # Isotopologue Normalize by Label and Combobox
+        isotopologue_normalize_label = tk.Label(normalization_frame, text="Isotopologue Normalize by:")
+        isotopologue_normalize_label.grid(row=0, column=2, padx=15)
+
+        self.isotopologue_normalize_var = tk.StringVar(value='none')  # Default value set to 'none'
+        self.isotopologue_normalize_combobox = ttk.Combobox(normalization_frame, textvariable=self.isotopologue_normalize_var, width=15)
+        self.isotopologue_normalize_combobox['values'] = ('none', 'Glucose M6', 'Glutamine M5')
+        self.isotopologue_normalize_combobox.grid(row=0, column=3, padx=5)
+        
+        # Button for triggering data normalization
+        self.normalize_button = tk.Button(self.tab_metabolomics_conversion, text="Normalize Data", command=self.normalize_data)
+        self.normalize_button.pack(pady=10)
+                    
+
+    def upload_csv_file(self):
+        file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+        if file_path:
+            self.file_path_entry_conv.delete(0, tk.END)
+            self.file_path_entry_conv.insert(0, file_path)
+            self.write_to_terminal("File uploaded successfully")
+        else:
+            self.write_to_terminal("No file selected")
+
+    def is_csv_file(self, filename):
+        return filename.endswith('.csv')
         
         
     def write_to_terminal(self, message):
@@ -258,6 +354,8 @@ class MetaboliteApp:
     def is_excel_file(self, filename):
         return filename.endswith('.xls') or filename.endswith('.xlsx')
     
+    def is_csv_file(self, filename):
+        return filename.endswith('.csv')
     
     def load_file(self):
         analysis_fpath = filedialog.askopenfilename()
@@ -578,6 +676,118 @@ class MetaboliteApp:
         except Exception as e:
             messagebox.showerror("Error", "Failed to save data: " + str(e))
             self.write_to_terminal("Error: " + str(e))  # For terminal output
+            
+            
+    def convert_metabolomics_file(self):
+        file_path = self.file_path_entry_conv.get()
+        if not file_path or not self.is_csv_file(file_path):
+            self.write_to_terminal("No valid CSV file selected.")
+            return
+
+        try:
+            df = pd.read_csv(file_path)
+
+            # Process column names
+            df.columns = [col.replace('___pos', '') if '___pos' in col else col for col in df.columns]
+            df.columns = [self.replace_p_with_dot(col) for col in df.columns]
+
+            if self.labelling_present_var.get():
+                self.save_csv_file(df, file_path)
+            else:
+                self.save_excel_file(df, file_path)
+
+        except Exception as e:
+            self.write_to_terminal(f"Error in file conversion: {e}")
+
+    def replace_p_with_dot(self, string):
+        return re.sub(r'(\d)p(\d)', r'\1.\2', string)
+
+    def save_csv_file(self, df, file_path):
+        new_file_path = file_path.replace('.csv', '_edited.csv')
+        df.to_csv(new_file_path, index=False)
+        self.write_to_terminal(f"File saved successfully as {new_file_path}")
+
+    def save_excel_file(self, df, file_path):
+        new_file_path = file_path.replace('.csv', '_edited.xlsx')
+        df.drop(columns=['Formula', 'IsotopeLabel'], errors='ignore', inplace=True)
+        with pd.ExcelWriter(new_file_path) as writer:
+            df.to_excel(writer, sheet_name='PoolAfterDF', index=False)
+        self.write_to_terminal(f"File saved successfully as {new_file_path}")
+        
+        
+    def upload_normalization_file(self):
+        file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx;*.xls")])
+        if file_path:
+            self.normalization_file_entry.delete(0, tk.END)
+            self.normalization_file_entry.insert(0, file_path)
+            self.write_to_terminal("Normalization file uploaded successfully")
+        else:
+            self.write_to_terminal("No file selected")
+        
+        
+    def normalize_data(self):
+        pool_norm_method = self.pool_normalize_var.get()
+        isotopologue_norm_method = self.isotopologue_normalize_var.get()
+        normalization_file_path = self.normalization_file_entry.get()
+
+        # Check if the file is uploaded and is an Excel file
+        if not normalization_file_path or not self.is_excel_file(normalization_file_path):
+            self.write_to_terminal("No valid Excel file selected for normalization.")
+            return
+
+        try:
+            xls = pd.ExcelFile(normalization_file_path)
+            if "PoolAfterDF" not in xls.sheet_names:
+                self.write_to_terminal("'PoolAfterDF' sheet not found in the Excel file.")
+                return
+
+            # Load PoolAfterDF sheet for further processing
+            df_pool = pd.read_excel(normalization_file_path, sheet_name='PoolAfterDF')
+
+            if pool_norm_method == 'none':
+                return
+            
+            if pool_norm_method == "TIC":
+                if "TIC" not in xls.sheet_names:
+                    self.write_to_terminal("'TIC' sheet not found in the Excel file.")
+                    return
+
+                # Normalize PoolAfterDF by TIC values
+                df_tic = pd.read_excel(normalization_file_path, sheet_name='TIC')
+                
+                for index, row in df_pool.iterrows():
+                    compound = row['Compound']
+                    is_neg = compound in self.unique_metabolites_neg
+                    is_pos = compound in self.unique_metabolites_pos
+                    if is_neg or is_pos:
+                        tic_row = df_tic.loc[df_tic['row identity (main ID)'] == ('TIC_neg' if is_neg else 'TIC_pos')]
+                        if tic_row.empty:
+                            self.write_to_terminal(f"No TIC values found for {'negative' if is_neg else 'positive'} ions.")
+                            return
+                        for col in df_pool.columns[1:]:
+                            df_pool.at[index, col] = df_pool.at[index, col] / tic_row.iloc[0][col]
+                    else:
+                        self.write_to_terminal(f"Compound {compound} not found in positive or negative metabolite lists.")
+                        return
+
+            elif pool_norm_method != "TIC":
+                # For Custom or any other metabolite selected from the combobox
+                normalization_metabolite = pool_norm_method
+                if normalization_metabolite not in df_pool['Compound'].values:
+                    self.write_to_terminal(f"Normalization metabolite '{normalization_metabolite}' not found in 'Compound' column.")
+                    return
+
+                # Normalization logic for the selected metabolite
+                # ...
+
+            self.write_to_terminal(f"Normalization selected: Pool - {pool_norm_method}, Isotopologue - {isotopologue_norm_method}")
+            # Additional normalization logic based on isotopologue normalization method
+            # ...
+
+            self.write_to_terminal("Normalization completed.")
+
+        except Exception as e:
+            self.write_to_terminal(f"Error during normalization: {e}")
 
                 
             
