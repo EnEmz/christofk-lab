@@ -448,7 +448,8 @@ class MetaboliteApp:
         pool_duplicates = self.df_analysis_pool['Compound'][self.df_analysis_pool['Compound'].duplicated()].unique().tolist()
         if pool_duplicates:
             self.write_to_terminal("Duplicate values in 'Compound' column:")
-            self.write_to_terminal(pool_duplicates)
+            duplicates_str = ', '.join(pool_duplicates)  # Convert list to string
+            self.write_to_terminal(duplicates_str)  # Pass string to write_to_terminal
         else:
             self.write_to_terminal("No metabolite duplicates found.")
             
