@@ -899,6 +899,14 @@ class MetaboliteApp:
             return
 
         try:
+            # Function to remove unnamed columns
+            def remove_unnamed_columns(df):
+                return df.loc[:, ~df.columns.str.contains('^Unnamed')]
+
+            # Clean both DataFrames
+            df_pool_original = remove_unnamed_columns(df_pool_original)
+            df_pool_normalized = remove_unnamed_columns(df_pool_normalized)
+            
             # Create new file path with '_normalized' appended
             new_file_path = normalization_file_path.rsplit('.', 1)[0] + '_normalized.xlsx'
 
