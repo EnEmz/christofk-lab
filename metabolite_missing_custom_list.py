@@ -205,9 +205,9 @@ class MetaboliteApp:
         self.upload_button_conv.pack(side=tk.RIGHT, padx=5)
         
         # Checkbox for "Labelling Present"
-        self.labelling_present_var = tk.BooleanVar()
-        self.checkbox_labelling = tk.Checkbutton(self.tab_metabolomics_conversion, text="Labelling Present", variable=self.labelling_present_var)
-        self.checkbox_labelling.pack(pady=10)
+        self.labelling_present_var_conversion = tk.BooleanVar()
+        self.checkbox_labelling_conversion = tk.Checkbutton(self.tab_metabolomics_conversion, text="Labelling Present", variable=self.labelling_present_var_conversion)
+        self.checkbox_labelling_conversion.pack(pady=10)
 
         # Convert button
         self.convert_button = tk.Button(self.tab_metabolomics_conversion, text="Convert Metabolomics File", command=self.convert_metabolomics_file)
@@ -259,21 +259,23 @@ class MetaboliteApp:
         combiner_label = tk.Label(self.tab_metabolomics_conversion, text="File Combiner", font=("Helvetica", 14))
         combiner_label.pack(pady=(20, 10))
 
-        # Main File Upload
-        self.main_file_frame = tk.Frame(self.tab_metabolomics_conversion)
-        self.main_file_frame.pack(fill='x', pady=5)
-        self.main_file_path_entry = tk.Entry(self.main_file_frame)
-        self.main_file_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        main_upload_button = tk.Button(self.main_file_frame, text="Upload Main File", command=lambda: self.upload_file(self.main_file_path_entry))
-        main_upload_button.pack(side=tk.RIGHT, padx=5)
+        # Button to add more file paths
+        self.add_file_button = tk.Button(self.tab_metabolomics_conversion, text="Add Another File", command=self.add_file_path_entry)
+        self.add_file_button.pack(pady=5)
 
-        # Additional File Upload
-        self.additional_file_frame = tk.Frame(self.tab_metabolomics_conversion)
-        self.additional_file_frame.pack(fill='x', pady=5)
-        self.add_file_path_entry = tk.Entry(self.additional_file_frame)
-        self.add_file_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        additional_upload_button = tk.Button(self.additional_file_frame, text="Upload Additional File", command=lambda: self.upload_file(self.add_file_path_entry))
-        additional_upload_button.pack(side=tk.RIGHT, padx=5)
+        # Frame to hold file path entries
+        self.file_paths_frame = tk.Frame(self.tab_metabolomics_conversion)
+        self.file_paths_frame.pack(fill='x', pady=5, expand=True)
+        self.file_paths = []  # List to store file path entries
+
+        # Add initial file path entries
+        self.add_file_path_entry()
+        self.add_file_path_entry()
+        
+        # Checkbox for "Labelling Present"
+        self.labelling_present_var_combiner = tk.BooleanVar()
+        self.checkbox_labelling_combiner = tk.Checkbutton(self.tab_metabolomics_conversion, text="Labelling Present", variable=self.labelling_present_var_combiner)
+        self.checkbox_labelling_combiner.pack(pady=10)
 
         # Export File Name Entry and Combine Button
         self.combine_frame = tk.Frame(self.tab_metabolomics_conversion)
@@ -283,11 +285,11 @@ class MetaboliteApp:
         self.export_file_name_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
         self.combine_button = tk.Button(self.combine_frame, text="Combine Files", command=self.combine_files)
         # Place Combine button in the center
-        self.combine_button.pack(side=tk.LEFT, padx=(5, 0))
-        
+        self.combine_button.pack(side=tk.LEFT, pady=5)
+            
         # Adjust the combine button to center it below the file path entries
-        self.combine_frame.pack_configure(pady=(5, 10))
-        self.combine_button.pack_configure(side=tk.LEFT, padx=5, expand=True)
+        self.file_paths_frame.pack_configure(pady=(5, 10))
+        self.combine_button.pack_configure(padx=5)
         
         # Create a frame specifically for displaying paths in this tab
         self.path_display_frame_conversion = tk.LabelFrame(self.tab_metabolomics_conversion, text="File Paths")
@@ -738,7 +740,7 @@ class MetaboliteApp:
             df.columns = [col.replace('___pos', '') if '___pos' in col else col for col in df.columns]
             df.columns = [self.replace_p_with_dot(col) for col in df.columns]
 
-            if self.labelling_present_var.get():
+            if self.labelling_present_var_conversion.get():
                 self.convert_save_csv_file(df, file_path)
             else:
                 self.convert_save_excel_file(df, file_path)
@@ -770,6 +772,40 @@ class MetaboliteApp:
             self.write_to_terminal("Normalization file uploaded successfully")
         else:
             self.write_to_terminal("No file selected")
+            
+    def add_file_path_entry(self):
+        file_path_frame = tk.Frame(self.file_paths_frame)
+        file_path_frame.pack(fill='x', expand=True, pady=2)  # Add padding for spacing between entries
+
+        entry = tk.Entry(file_path_frame)
+        entry.pack(side=tk.LEFT, fill='x', expand=True, padx=5)  # Add some padding for visual appeal
+
+        upload_button = tk.Button(file_path_frame, text="Upload File", command=lambda: self.upload_file(entry))
+        upload_button.pack(side=tk.LEFT)
+
+        # 'x' button to remove the entry
+        remove_button = tk.Button(file_path_frame, text="x", command=lambda: self.remove_file_path_entry(file_path_frame, entry))
+        remove_button.pack(side=tk.RIGHT, padx=5)
+
+        self.file_paths.append((file_path_frame, entry))  # Store the frame and entry in the list
+
+    def remove_file_path_entry(self, file_path_frame, entry):
+        # This ensures the frame will resize after removing an entry
+        file_path_frame.destroy()
+        self.file_paths.remove((file_path_frame, entry))
+        self.file_paths_frame.pack_propagate(True)  # Allow the frame to shrink
+        
+    def create_file_upload_ui(self, parent, button_text, row):
+        file_path_frame = tk.Frame(parent)
+        file_path_frame.grid(row=row, column=0, columnspan=2, sticky='ew', padx=5, pady=5)
+
+        file_path_entry = tk.Entry(file_path_frame)
+        file_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+        upload_button = tk.Button(file_path_frame, text=button_text, command=lambda: self.upload_file(file_path_entry))
+        upload_button.pack(side=tk.RIGHT, padx=5)
+
+        return file_path_entry
     
     
     def normalize_iso_data(self):
@@ -798,10 +834,9 @@ class MetaboliteApp:
             # Check for isotopologue normalization
             if isotopologue_norm_method != 'none':
                 
-                # Load Corrected sheet for further processing
+                
                 df_corrected = pd.read_excel(normalization_file_path, sheet_name='Corrected')
-                # Implement isotopologue normalization logic here
-                # ...
+                
 
             self.write_to_terminal("Normalization completed.")
             
@@ -961,37 +996,69 @@ class MetaboliteApp:
             entry.insert(0, file_path)
             
     def combine_files(self):
-        main_file_path = self.main_file_path_entry.get()
-        add_file_path = self.add_file_path_entry.get()
+        file_paths = [entry.get() for _, entry in self.file_paths if entry.get()]
         export_file_name = self.export_file_name_entry.get().strip()
+        is_labeling_present = self.labelling_present_var_combiner.get()
+        target_sheets = ['Original', 'Corrected', 'Normalized', 'PoolAfterDF'] if is_labeling_present else ['PoolAfterDF']
 
-        if not main_file_path or not add_file_path or not export_file_name:
-            self.write_to_terminal("Please upload both files and specify an export file name.")
+        if not file_paths or not export_file_name:
+            self.write_to_terminal("Please upload files and specify an export file name.")
             return
 
         try:
-            # Read the Excel files
-            df_main_pool = pd.read_excel(main_file_path, sheet_name="PoolAfterDF")
-            df_add_pool = pd.read_excel(add_file_path, sheet_name="PoolAfterDF")
+            combined_dfs = {sheet: None for sheet in target_sheets}
+            for file_path in file_paths:
+                xls = pd.ExcelFile(file_path)
+                for sheet_name in target_sheets:
+                    if sheet_name not in xls.sheet_names:
+                        self.write_to_terminal(f"'{sheet_name}' sheet not found in {file_path}")
+                        continue
 
-            # Combine the dataframes
-            df_main_pool['Compound'] = df_main_pool['Compound'].str.strip()
-            df_add_pool['Compound'] = df_add_pool['Compound'].str.strip()
-            df_comb = df_main_pool.merge(df_add_pool, on='Compound', how='outer')
-            df_comb = df_comb.fillna(0)
+                    df = pd.read_excel(file_path, sheet_name=sheet_name)
 
-            # Export the combined dataframe
+                    # Ensure 'Compound' column is present and properly named
+                    compound_col = 'Compound' if 'Compound' in df.columns else 'compound' if 'compound' in df.columns else None
+                    if compound_col is None:
+                        self.write_to_terminal(f"'Compound' column not found in {sheet_name} sheet of {file_path}")
+                        continue
+
+                    df.rename(columns={compound_col: 'Compound'}, inplace=True)
+                    df['Compound'] = df['Compound'].str.strip()
+
+                    # Determine key columns based on the sheet
+                    key_cols = ['Compound', 'C_Label'] if sheet_name in ['Corrected', 'Normalized'] else ['Compound']
+                    if sheet_name == 'Original':
+                        key_cols += ['Formula', 'IsotopeLabel'] if {'Formula', 'IsotopeLabel'}.issubset(df.columns) else []
+                    
+                    if combined_dfs[sheet_name] is not None:
+                        # Merge on key columns
+                        combined_dfs[sheet_name] = pd.merge(combined_dfs[sheet_name], df, on=key_cols, how='outer')
+                    else:
+                        combined_dfs[sheet_name] = df
+
+            # Save each dataframe to a new sheet in the output file
             export_dir = "C:/Users/nmatulionis/Desktop/"
-            df_comb.T.reset_index().T.to_excel(export_dir + export_file_name, sheet_name='PoolAfterDF', index=False, header=None)
+            with pd.ExcelWriter(export_dir + export_file_name) as writer:
+                for sheet_name, df in combined_dfs.items():
+                    if df is not None:
+                        df.fillna(0, inplace=True)  # Fill NaN with zeros
+                        df.to_excel(writer, sheet_name=sheet_name, index=False)
 
             self.write_to_terminal(f"Files combined and saved as {export_dir + export_file_name}")
 
         except Exception as e:
             self.write_to_terminal(f"Error during file combination: {e}")
+
+    def check_sheet_exists(self, file_path, sheet_name):
+        """ Check if a given sheet exists in an Excel file """
+        try:
+            xls = pd.ExcelFile(file_path)
+            return sheet_name in xls.sheet_names
+        except Exception as e:
+            self.write_to_terminal(f"Error checking sheets in file {file_path}: {e}")
+            return False
     
 
-                
-            
 class CustomSpinbox:
     def __init__(self, parent, from_, to, write_to_terminal, initial_value=0):
         self.value = tk.IntVar(value=initial_value)
