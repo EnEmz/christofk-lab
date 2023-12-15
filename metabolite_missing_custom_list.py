@@ -250,10 +250,19 @@ class MetaboliteApp:
         # Button for triggering pool data normalization
         self.normalize_pool_button = tk.Button(normalization_frame, text="Normalize Pool Data", command=self.normalize_pool_data)
         self.normalize_pool_button.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky='ew')
+        
+        # Combobox for selecting the normalization type. 
+        iso_normalize_type_label = tk.Label(normalization_frame, text="Iso Normalization Type:")
+        iso_normalize_type_label.grid(row=1, column=2, padx=5)
+        
+        self.iso_normalize_type_var = tk.StringVar(value='UC Label Only')  # Default value set to 'none'
+        self.iso_normalize_type_combobox = ttk.Combobox(normalization_frame, textvariable=self.iso_normalize_type_var, width=25)
+        self.iso_normalize_type_combobox['values'] = ('UC Label Only', 'Weighted by Isotopologue')
+        self.iso_normalize_type_combobox.grid(row=1, column=3, padx=15)
 
         # Button for triggering isotopologue data normalization
         self.normalize_iso_button = tk.Button(normalization_frame, text="Normalize Iso Data", command=self.normalize_iso_data)
-        self.normalize_iso_button.grid(row=1, column=2, columnspan=2, padx=5, pady=5, sticky='ew')
+        self.normalize_iso_button.grid(row=2, column=2, columnspan=2, padx=5, pady=5, sticky='ew')
 
         # File Combiner Section
         combiner_label = tk.Label(self.tab_metabolomics_conversion, text="File Combiner", font=("Helvetica", 14))
@@ -811,7 +820,10 @@ class MetaboliteApp:
     def normalize_iso_data(self):
         normalization_file_path = self.normalization_file_entry.get()
         isotopologue_norm_method = self.isotopologue_normalize_var.get()
+        isotopologue_norm_type = self.iso_normalize_type_var.get()
+        
         self.write_to_terminal(f"Normalization selected: Isotopologue - {isotopologue_norm_method}")
+        self.write_to_terminal(f"Normalization Type selected: Isotopologue - {isotopologue_norm_type}")
         
         # Check if the file is uploaded and is an Excel file
         if not normalization_file_path or not self.is_excel_file(normalization_file_path):
@@ -823,9 +835,10 @@ class MetaboliteApp:
             if "Corrected" not in xls.sheet_names:
                 self.write_to_terminal("'Corrected' sheet not found in the Excel file.")
                 return
-
-            # Load PoolAfterDF sheet for further processing
-            df_pool = pd.read_excel(normalization_file_path, sheet_name='Corrected')
+            
+            if "Normalized" not in xls.sheet_names:
+                self.write_to_terminal("'Normalized' sheet not found in the Excel file.")
+                return
 
             if isotopologue_norm_method == 'none':
                 return
@@ -834,8 +847,8 @@ class MetaboliteApp:
             # Check for isotopologue normalization
             if isotopologue_norm_method != 'none':
                 
-                
-                df_corrected = pd.read_excel(normalization_file_path, sheet_name='Corrected')
+                df_iso = pd.read_excel(normalization_file_path, sheet_name='Corrected')
+                df_iso_zero_to_one = pd.read_excel(normalization_file_path, sheet_name='Normalized')
                 
 
             self.write_to_terminal("Normalization completed.")
