@@ -1,0 +1,331 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation Site</title>
+    <style>
+        /* Google Font Import */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+    
+        body, html {
+            height: 100%; /* Ensure the full height */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            font-family: 'Roboto', sans-serif;
+        }
+    
+        #wrapper {
+            display: flex;
+            width: 100%; /* Full width of the viewport */
+        }
+    
+        #sidebar {
+            display: flex;
+            flex-direction: column;
+            width: 700px;
+            background: #2c3e50; /* Darker shade for sidebar */
+            color: #fff;
+            padding: 20px;
+            height: 100vh; /* Full height of the viewport */
+            box-sizing: border-box; /* Include padding in width */
+        }
+    
+        .sidebar-list {
+            list-style: none;
+            padding: 0;
+        }
+    
+        .sidebar-item a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+    
+        .sidebar-item a:hover, .sidebar-item a:focus {
+            background-color: #34495e;
+            color: #ecf0f1; /* Light color on hover */
+        }
+    
+        #content {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #ffffff; /* White background for content */
+            overflow-y: auto; /* Scroll if content overflows */
+        }
+    
+        /* Code Text Styling */
+        code {
+            background-color: #e7e7e7; /* Light gray background */
+            color: #c0392b; /* Dark red color for code */
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    
+        /* Section Styling */
+        section h1 {
+            color: #19547c; /* Blue color for headings */
+        }
+
+        section h3 {
+            color: #418bbd; /* Blue color for headings */
+        }
+    
+        /* Sub-section */
+        .sub-section a {
+            color: #c4cbcc; /* Subtle color for sub-section links */
+        }
+    
+        .sub-section a:hover {
+            color: #d0dedf;
+        }
+    
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            #sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+    
+            #content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <nav id="sidebar">
+            <ul class="sidebar-list">
+                <li class="sidebar-item">
+                    <a href="#home" onclick="toggleSections('home'); toggleSubsections('home-subsections')">Home</a>
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="#local-server-config" onclick="toggleSections('local-server-config-body'); toggleSubsections('local-server-config-subsections')">Local Server Configuration</a>
+                    <ul id="local-server-config-subsections" class="sub-section">
+                        <li><a href="#subsection1">Mac and Linux</a></li>
+                        <li><a href="#subsection2">Windows</a></li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="#local-server-run-body" onclick="toggleSections('local-server-run-body'); toggleSubsections('local-server-run-subsections')">Section 2</a>
+                
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="#section3" onclick="toggleSubsections('section1-subsections')">Section 3</a>
+                
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="#section4" onclick="toggleSubsections('section1-subsections')">Section 4</a>
+                
+                </li>
+
+            </ul>
+        </nav>
+
+        <div id="content">
+            <section id="home"><h1>Christofk_Grapha Tutorial / Documentation</h1>
+                <p>
+                    Welcome to documentation on how to use Christofk_Grapha. This is an automated 
+                    visualization and data analysis tool for metabolomics data from Christofk Lab 
+                    at UCLA. Please reach out to Nedas Matulionis at 
+                    <a href="mailto:nmatulionis@mednet.ucla.edu">nmatulionis@mednet.ucla.edu</a> 
+                    if you have any questions.
+                    <br><br>
+                    
+
+                </p>
+            </section>
+
+            <section id="local-server-config-body">
+                <h1>Non-UCLA Local Server Configuration</h1>
+                <p>
+                    We are planning to release Christofk_Grapha on UCLA server where a user that has a UCLA login, will be able to directly login and use this tool. 
+                    <br><br>
+                    For non UCLA users and while we await UCLA server configuration, it is possible to run a Flask server on your local machine.
+                    Please be aware that some parts are operating system specific.
+                    <br><br>
+                    <b>Note that you only need to do the configuration once!</b>
+
+                    <ol>
+                        <li>
+                            If you do not have Python on your computer, go to <a href="https://www.python.org/downloads/release/python-3120/" target="_blank">Python 3.12 download website</a>
+                             and download the installer for Python 3.12 for your operating system.
+                            <ul>
+                                <li>
+                                    If the computer is a UCLA computer, please let me know and we can work on installing this together.
+                                </li>
+                                <li>
+                                    <b>For Windows users,</b> when installing, please check the box that says: “Add Python to PATH variables”.
+                                </li>
+                                <li><b>For Mac or Linux users,</b> after Python is installed, go to Applications &gt; Python 3.12 and double click on two files in this order:
+                                     Install Certificates.command; Update Shell Profile.command.
+                                </li>
+                            </ul>
+                        </li>
+                        <br>
+                        <li>Go to <a href="https://github.com/EnEmz/Christofk_Grapha" target="_blank">Chrisofk_Grapha github repository</a>, 
+                            click on green "Code" button and click "Download Zip".
+                        </li>
+                        <br>
+                        <li>Locate the Chrisofk_Grapha zip file in your downloads folder (extract it for Windows users)
+                            and put the folder on your Desktop. <b>Make sure the folder name is "Chrisofk_Grapha" on the Desktop.</b>
+                        </li>
+                    </ol>
+                    You have all the files ready for running the automated scripts for starting a local server on your computer. 
+                    Now let's set up the scripts to be able to run for your computer:
+                    <br><br>
+                </p>
+            
+                <section id="subsection1">
+                    <h3>Mac and Linux</h3>
+                    <p>
+                        <ol>
+                            <li>
+                                Press Command + Space and type “terminal”, press Enter to open the Terminal.
+                            </li>
+                            <br>
+                            <li>
+                                Type and be aware of spaces: <code>cd Desktop/Christofk_Grapha/scripts</code>, 
+                                click Enter to change your active terminal directory to the app's folder where the scripts are located.
+                                <ul>
+                                    <li>At any point in the Terminal, if you want to see what is inside your current directory you can type <code>ls</code> and press Enter.</li>
+                                </ul>
+                            </li>
+                            <br>
+                            <li>
+                                Now we need to change the shell scripts (automated terminal commands) to executable files so that it's possible to run them on your computer. While in Christofk_Grapha/scripts folder directory in the terminal, execute two commands:
+                                <ul>
+                                    <li><code>chmod +x control_app_mac.sh</code></li>
+                                    <li><code>chmod +x setup_mac_linux.sh</code></li>
+                                </ul>
+                            </li>
+                            <br>
+                            <li>
+                                Now we can setup the environment for the app to be able to run. We only need to do this once to set it up for your computer. Execute this command in the terminal:
+                                <ul>
+                                    <li><code>./setup_mac_linux.sh</code></li>
+                                    <li>This should result in a lot of text. We are installing the necessary Python packages to a virtual Python environment for Christofk_Grapha.</li>
+                                </ul>
+                            </li>
+                            <br>
+                            <li>
+                                Now everything is ready for running the app. In the terminal while in Christofk_Grapha/scripts directory, run this command:
+                                <ul>
+                                    <li><code>./control_app_mac.sh</code></li>
+                                    <li>This will start the shell executable to control the instance of the local server.</li>
+                                    <li>Type <code>start</code> to start running a local server on your computer. This might take around 10-20 seconds at the most.</li>
+                                    <li>
+                                        Once it says that <code>Dash is running on …</code>, you are good to go. The script will automatically have opened a tab in your default browser to where you can use the app. 
+                                        You can go to <a href="http://127.0.0.1:8050/">http://127.0.0.1:8050/</a> to access the app on multiple tabs or you close it.
+                                    </li>
+                                </ul>
+                            </li>
+                            <br>
+                            <li>
+                                <b>This is very important, after you are done using the app, go back to Terminal and type <code>stop</code> to stop the local server from running.</b>
+                                This process can take some of your computer resources, therefore we do not wish for them to be slower due to running a local server.
+                            </li>
+                            <br>
+                            <li>
+                                New features are added constantly; therefore, it is advised to type the command <code>update</code> which will add the new features. Afterwards you can type <code>start</code> and <code>stop</code> as instructed before.
+                            </li>
+                        </ol>
+                        <p>After closing the Terminal and you would like to use Christofk_Grapha at some other time, the Terminal will not save the app's directory location, therefore the process to run the app again:</p>
+                        <ul>
+                            <li>Open Terminal (Command + Space and type “terminal”)</li>
+                            <li>Execute: <code>cd Desktop/Christofk_Grapha/scripts</code></li>
+                            <li>Execute: <code>./control_app_mac.sh</code></li>
+                            <li>Type <code>start</code> to begin a local server.</li>
+                            <li>After you are done using the app, go back to the Terminal and type <code>stop</code> to end the local server instance.</li>
+                        </ul>
+                    </p>
+                </section>
+            
+                <section id="subsection2">
+                    <h3>Windows</h3>
+                    <p>
+                        <ol>
+                            <li>
+                                Go to your <code>Desktop/Christofk_Grapha/scripts</code> folder and double click on the <code>setup_windows.bat</code> file. 
+                                Please wait for the computer to create a virtual environment and install necessary Python packages, this process might take 10 minutes.
+                            </li>
+                            <br>
+                            <li>
+                                In your <code>Desktop/Christofk_Grapha/scripts</code> folder and double click on the <code>control_app_windows.bat</code> file.
+                                This will launch the Python launcher where you would wait for the <code>Dash is running on …</code> message to appear. 
+                            </li>
+                            <br>
+                            <li>
+                                A tab will automatically open a new tab in your default browser.
+                                You can go to <a href="http://127.0.0.1:8050/">http://127.0.0.1:8050/</a> to access the app on multiple tabs or you close it.
+                            </li>
+                            <br>
+                            <li>
+
+                            </li>
+                        </ol>
+                    </p>
+                </section>
+            </section>
+
+            <section id="local-server-run-body"><h1>Using a Local Server</h1><p>This is for running the Dash app</p></section>
+
+            <section id="section3"><h1>Section 3</h1><p>Content for Section 3...</p></section>
+
+            <section id="section4"><h1>Section 4</h1><p>Content for Section 4...</p></section>
+
+        </div>
+    </div>
+</body>
+
+<script>
+    function toggleSections(selectedSectionId) {
+        // Hide all sections
+        var allSections = document.querySelectorAll('#content > section');
+        allSections.forEach(section => {
+            section.style.display = 'none';
+        });
+
+        // Show the clicked section
+        var selectedSection = document.getElementById(selectedSectionId);
+        if (selectedSection) {
+            selectedSection.style.display = 'block';
+            selectedSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    function toggleSubsections(subsectionId) {
+        // First, hide all subsections in the sidebar
+        var allSubsections = document.getElementsByClassName('sub-section');
+        for (var i = 0; i < allSubsections.length; i++) {
+            allSubsections[i].style.display = 'none';
+        }
+
+        // Then, show the subsections for the clicked main section
+        var currentSubsections = document.getElementById(subsectionId);
+        if (currentSubsections) {
+            currentSubsections.style.display = 'block';
+        }
+    }
+
+    // Display the Home section and its subsections (if any) on page load
+    window.onload = function() {
+        toggleSections('home');
+        toggleSubsections('home-subsections');
+    };
+</script>
+
+</html>
+
