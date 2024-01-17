@@ -61,7 +61,7 @@
     
         /* Code Text Styling */
         code {
-            background-color: #e7e7e7; /* Light gray background */
+            background-color: #ffffff;
             color: #c0392b; /* Dark red color for code */
             padding: 2px 4px;
             border-radius: 4px;
@@ -224,7 +224,11 @@
                             <li>
                                 Now we can setup the environment for the app to be able to run. We only need to do this once to set it up for your computer.
                                 <ul>
-                                    <li>Go to your Desktop, open the <code>Christofk_Grapha/scripts</code> folder and double click on <code>setup_mac_linux.command</code> file.</li>
+                                    <li>
+                                        Go to your Desktop, open the <code>Christofk_Grapha/scripts</code> folder and double click on <code>setup_mac_linux.command</code> file.
+                                        Due to Mac security features in newer OS, this might give you a security message. Try right-click on the 
+                                        <code>setup_mac_linux.command</code> file and click <code>Open</code>.
+                                    </li>
                                     <li>This should result in a lot of text. We are installing the necessary Python packages to a virtual Python environment for Christofk_Grapha.
                                         At the end of the file you should see a message <code>[Process completed]</code> after which you can close the terminal.
                                     </li>
@@ -248,7 +252,9 @@
                             </li>
                             <br>
                             <li>
-                                Please wait for the computer to create a virtual environment and install necessary Python packages, this process might take 10 minutes.
+                                Please wait for the computer to create a virtual environment and install necessary Python packages, 
+                                this process might take 10 minutes or more depending on your computer and internet speed.
+                                You should see a <code>Setup is complete!</code> message once everything is complete.
                             </li>
                             <br>
                         </ol>
@@ -278,6 +284,9 @@
                             <br>
                             <li>
                                 Open <code>control_app_mac.command</code> file to launch the control script of Christofk_Grapha.
+                                Due to MAC security features in newer OS, this might give you a security message. Try right-click on the 
+                                <code>control_app_mac.command</code> file and click <code>Open</code>. You only need to right-click and 
+                                <code>Open</code> once. Afterwards, your Mac will remember that this is a safe file.
                             </li>
                             <br>
                             <li>
@@ -309,9 +318,51 @@
                             <li>
                                 Please note that there are regular updates to Christofk_Grapha, therefore it is advisable to execute the <code>update</code> command once in a while.
                             </li>
+                            <br>
                         </ol>
                     </p>
                 </section>
+
+                <section id="local-server-run-windows">
+                    <h3>Windows</h3>
+                    <p>
+                        <ol>
+                            <li>
+                                Go to your <code>Desktop/Christofk_Grapha/scripts</code> folder and double click on the <code>control_app_windows.bat</code> file. 
+                                    <ul>
+                                        <li>If you receive a warning message, click on <code>More info</code> and on <code>Run anyway</code>.</li>
+                                    </ul>
+                            </li>
+                            <br>
+                            <li>
+                                This opens the Windows batch file instance to control a local server for Christofk_Grapha.
+                                Type <code>start</code> and press <code>Enter</code> to start the server on your computer.
+                                This should open a <code>Python Launcher</code>> on your computer.
+                            </li>
+                            <br>
+                            <li>
+                                After 20 seconds at the most in your <code>Python Launcher</code>> you should see a message: 
+                                <code>Dash is running on...</code>. This means that the local server was launched correctly 
+                                and Christofk_Grapha is available for use. A new tab 
+                            </li>
+                            <br>
+                            <li>
+                                Go to <a href="http://127.0.0.1:8050/">http://127.0.0.1:8050/</a> to access the app on multiple tabs 
+                                or if you accidentally close it while the local server is running.
+                            </li>
+                            <br>
+                            <li>
+                                After you are done using Christofk_Grapha, <b>please close the <code>Python Launcher</code> window</b>,
+                                as it takes significant resources to run.
+                            </li>
+                            <br>
+                            <li>
+                                If you would like to use Christofk_Grapha again after closing, follow Step 1.
+                            </li>
+                        </ol>
+                    </p>
+                </section>
+                
 
             </section>
 
