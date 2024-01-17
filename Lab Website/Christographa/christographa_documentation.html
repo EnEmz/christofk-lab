@@ -25,7 +25,7 @@
         #sidebar {
             display: flex;
             flex-direction: column;
-            width: 700px;
+            width: 30%; /* Set sidebar to 30% of the viewport width */
             background: #2c3e50; /* Darker shade for sidebar */
             color: #fff;
             padding: 20px;
@@ -86,18 +86,7 @@
             color: #d0dedf;
         }
     
-        /* Responsive Design */
-        @media screen and (max-width: 768px) {
-            #sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-    
-            #content {
-                margin-left: 0;
-            }
-        }
+       
     </style>
 </head>
 <body>
@@ -111,14 +100,17 @@
                 <li class="sidebar-item">
                     <a href="#local-server-config" onclick="toggleSections('local-server-config-body'); toggleSubsections('local-server-config-subsections')">Local Server Configuration</a>
                     <ul id="local-server-config-subsections" class="sub-section">
-                        <li><a href="#subsection1">Mac and Linux</a></li>
-                        <li><a href="#subsection2">Windows</a></li>
+                        <li><a href="#local-server-config-mac">Mac and Linux</a></li>
+                        <li><a href="#local-server-config-windows">Windows</a></li>
                     </ul>
                 </li>
 
                 <li class="sidebar-item">
-                    <a href="#local-server-run-body" onclick="toggleSections('local-server-run-body'); toggleSubsections('local-server-run-subsections')">Section 2</a>
-                
+                    <a href="#local-server-run" onclick="toggleSections('local-server-run-body'); toggleSubsections('local-server-run-subsections')">Run, Stop, and Update a Local Server</a>
+                    <ul id="local-server-run-subsections" class="sub-section">
+                        <li><a href="#local-server-run-mac">Mac and Linux</a></li>
+                        <li><a href="#local-server-run-windows">Windows</a></li>
+                    </ul>
                 </li>
 
                 <li class="sidebar-item">
@@ -135,7 +127,8 @@
         </nav>
 
         <div id="content">
-            <section id="home"><h1>Christofk_Grapha Tutorial / Documentation</h1>
+            <section id="home">
+                <h1>Christofk_Grapha Tutorial / Documentation</h1>
                 <p>
                     Welcome to documentation on how to use Christofk_Grapha. This is an automated 
                     visualization and data analysis tool for metabolomics data from Christofk Lab 
@@ -143,6 +136,12 @@
                     <a href="mailto:nmatulionis@mednet.ucla.edu">nmatulionis@mednet.ucla.edu</a> 
                     if you have any questions.
                     <br><br>
+                    Please note that this is a new effort by the Christofk lab to visualize metabolomics 
+                    data after LC/MS peak analysis and metabolite name assignment.
+                    If you have any issues with using the Christofk_Grapha tool, please reach out to 
+                    Nedas Matulionis at 
+                    <a href="mailto:nmatulionis@mednet.ucla.edu">nmatulionis@mednet.ucla.edu</a> 
+                    , so that we can address your issue.
                     
 
                 </p>
@@ -151,25 +150,30 @@
             <section id="local-server-config-body">
                 <h1>Non-UCLA Local Server Configuration</h1>
                 <p>
-                    We are planning to release Christofk_Grapha on UCLA server where a user that has a UCLA login, will be able to directly login and use this tool. 
+                    We are planning to release Christofk_Grapha on UCLA server where a user that has a 
+                    UCLA login, will be able to directly login and use this tool. 
                     <br><br>
-                    For non UCLA users and while we await UCLA server configuration, it is possible to run a Flask server on your local machine.
+                    For non UCLA users and while we await UCLA server configuration, it is possible to 
+                    run a Flask server on your local machine.
                     Please be aware that some parts are operating system specific.
                     <br><br>
                     <b>Note that you only need to do the configuration once!</b>
 
                     <ol>
                         <li>
-                            If you do not have Python on your computer, go to <a href="https://www.python.org/downloads/release/python-3120/" target="_blank">Python 3.12 download website</a>
+                            If you do not have Python on your computer, go to 
+                            <a href="https://www.python.org/downloads/release/python-3120/" target="_blank">Python 3.12 download website</a>
                              and download the installer for Python 3.12 for your operating system.
                             <ul>
                                 <li>
                                     If the computer is a UCLA computer, please let me know and we can work on installing this together.
                                 </li>
                                 <li>
-                                    <b>For Windows users,</b> when installing, please check the box that says: “Add Python to PATH variables”.
+                                    <b>For Windows users,</b> when installing, please check the box that says: 
+                                    “Add Python to PATH variables”.
                                 </li>
-                                <li><b>For Mac or Linux users,</b> after Python is installed, go to Applications &gt; Python 3.12 and double click on two files in this order:
+                                <li><b>For Mac or Linux users,</b> after Python is installed, go to Applications &gt;
+                                     Python 3.12 and double click on two files in this order:
                                      Install Certificates.command; Update Shell Profile.command.
                                 </li>
                             </ul>
@@ -180,20 +184,22 @@
                         </li>
                         <br>
                         <li>Locate the Chrisofk_Grapha zip file in your downloads folder (extract it for Windows users)
-                            and put the folder on your Desktop. <b>Make sure the folder name is "Chrisofk_Grapha" on the Desktop.</b>
+                            and put the folder on your Desktop. <b>Make sure the folder name is 
+                            "Chrisofk_Grapha" on the Desktop.</b> You will need to <b>delete "-main"</b>.
                         </li>
                     </ol>
-                    You have all the files ready for running the automated scripts for starting a local server on your computer. 
+                    You have all the files ready for running the automated scripts for starting a 
+                    local server on your computer. 
                     Now let's set up the scripts to be able to run for your computer:
                     <br><br>
                 </p>
             
-                <section id="subsection1">
+                <section id="local-server-config-mac">
                     <h3>Mac and Linux</h3>
                     <p>
                         <ol>
                             <li>
-                                Press Command + Space and type “terminal”, press Enter to open the Terminal.
+                                Press Command + Space, type “terminal”, press Enter to open the Terminal.
                             </li>
                             <br>
                             <li>
@@ -205,86 +211,125 @@
                             </li>
                             <br>
                             <li>
-                                Now we need to change the shell scripts (automated terminal commands) to executable files so that it's possible to run them on your computer. While in Christofk_Grapha/scripts folder directory in the terminal, execute two commands:
+                                Now we need to change the command scripts (automated terminal commands) to executable files so that it's possible to run them on your computer. 
+                                While in <code>/Christofk_Grapha/scripts</code> folder directory in the terminal, execute two commands:
                                 <ul>
-                                    <li><code>chmod +x control_app_mac.sh</code></li>
-                                    <li><code>chmod +x setup_mac_linux.sh</code></li>
+                                    <li>Type <code>chmod +x control_app_mac.command</code> and press <code>Enter</code></li>
+                                    <li>Type <code>chmod +x setup_mac_linux.command</code> and press <code>Enter</code></li>
                                 </ul>
                             </li>
                             <br>
-                            <li>
-                                Now we can setup the environment for the app to be able to run. We only need to do this once to set it up for your computer. Execute this command in the terminal:
-                                <ul>
-                                    <li><code>./setup_mac_linux.sh</code></li>
-                                    <li>This should result in a lot of text. We are installing the necessary Python packages to a virtual Python environment for Christofk_Grapha.</li>
-                                </ul>
-                            </li>
+                            This is all the more complicated interaction with the terminal we are going to need, I promise.<br>
                             <br>
                             <li>
-                                Now everything is ready for running the app. In the terminal while in Christofk_Grapha/scripts directory, run this command:
+                                Now we can setup the environment for the app to be able to run. We only need to do this once to set it up for your computer.
                                 <ul>
-                                    <li><code>./control_app_mac.sh</code></li>
-                                    <li>This will start the shell executable to control the instance of the local server.</li>
-                                    <li>Type <code>start</code> to start running a local server on your computer. This might take around 10-20 seconds at the most.</li>
-                                    <li>
-                                        Once it says that <code>Dash is running on …</code>, you are good to go. The script will automatically have opened a tab in your default browser to where you can use the app. 
-                                        You can go to <a href="http://127.0.0.1:8050/">http://127.0.0.1:8050/</a> to access the app on multiple tabs or you close it.
+                                    <li>Go to your Desktop, open the <code>Christofk_Grapha/scripts</code> folder and double click on <code>setup_mac_linux.command</code> file.</li>
+                                    <li>This should result in a lot of text. We are installing the necessary Python packages to a virtual Python environment for Christofk_Grapha.
+                                        At the end of the file you should see a message <code>[Process completed]</code> after which you can close the terminal.
                                     </li>
                                 </ul>
                             </li>
-                            <br>
-                            <li>
-                                <b>This is very important, after you are done using the app, go back to Terminal and type <code>stop</code> to stop the local server from running.</b>
-                                This process can take some of your computer resources, therefore we do not wish for them to be slower due to running a local server.
-                            </li>
-                            <br>
-                            <li>
-                                New features are added constantly; therefore, it is advised to type the command <code>update</code> which will add the new features. Afterwards you can type <code>start</code> and <code>stop</code> as instructed before.
-                            </li>
                         </ol>
-                        <p>After closing the Terminal and you would like to use Christofk_Grapha at some other time, the Terminal will not save the app's directory location, therefore the process to run the app again:</p>
-                        <ul>
-                            <li>Open Terminal (Command + Space and type “terminal”)</li>
-                            <li>Execute: <code>cd Desktop/Christofk_Grapha/scripts</code></li>
-                            <li>Execute: <code>./control_app_mac.sh</code></li>
-                            <li>Type <code>start</code> to begin a local server.</li>
-                            <li>After you are done using the app, go back to the Terminal and type <code>stop</code> to end the local server instance.</li>
-                        </ul>
+                        <b>Note that you only need to do the configuration once!</b>
+                        <br>
                     </p>
                 </section>
             
-                <section id="subsection2">
+                <section id="local-server-config-windows">
                     <h3>Windows</h3>
                     <p>
                         <ol>
                             <li>
                                 Go to your <code>Desktop/Christofk_Grapha/scripts</code> folder and double click on the <code>setup_windows.bat</code> file. 
+                                    <ul>
+                                        <li>If you receive a warning message, click on <code>More info</code> and on <code>Run anyway</code>.</li>
+                                    </ul>
+                            </li>
+                            <br>
+                            <li>
                                 Please wait for the computer to create a virtual environment and install necessary Python packages, this process might take 10 minutes.
                             </li>
                             <br>
-                            <li>
-                                In your <code>Desktop/Christofk_Grapha/scripts</code> folder and double click on the <code>control_app_windows.bat</code> file.
-                                This will launch the Python launcher where you would wait for the <code>Dash is running on …</code> message to appear. 
-                            </li>
-                            <br>
-                            <li>
-                                A tab will automatically open a new tab in your default browser.
-                                You can go to <a href="http://127.0.0.1:8050/">http://127.0.0.1:8050/</a> to access the app on multiple tabs or you close it.
-                            </li>
-                            <br>
-                            <li>
-
-                            </li>
                         </ol>
+                        This is it, finally Windows is somewhat easier than Mac machines. Your setup is done and you can move on to running a local 
+                        server on your computer.
+                        <br><br>
+                        <b>Note that you only need to do the configuration once!</b>
                     </p>
                 </section>
             </section>
 
-            <section id="local-server-run-body"><h1>Using a Local Server</h1><p>This is for running the Dash app</p></section>
+            <section id="local-server-run-body"><h1>Run, Stop, and Update a Local Server</h1>
+                <p>
+                    Now that the software is on your computer, we can run a local server on your computer
+                    to make Christofk_Grapha available for use.
+                    <br><br>
+                </p>
 
-            <section id="section3"><h1>Section 3</h1><p>Content for Section 3...</p></section>
+                <section id="local-server-run-mac">
+                    <h3>Mac and Linux</h3>
+                    <p>
+                        <ol>
+                            <li>
+                                Go to <code>Desktop/Christofk_Grapha/scripts</code> folder.
+                                <br>
+                            </li>
+                            <br>
+                            <li>
+                                Open <code>control_app_mac.command</code> file to launch the control script of Christofk_Grapha.
+                            </li>
+                            <br>
+                            <li>
+                                Type <code>start</code> and press <code>Enter</code> to start a local server instance of Christofk_Grapha on your computer.
+                                This step might take up to 20 seconds depending on the speed of your computer.
+                            </li>
+                            <br>
+                            <li>
+                                Once it says that <code>Dash is running on …</code>, you are good to go. The script will automatically open a new tab in your default browser to where you can use the app. 
+                                You can go to <a href="http://127.0.0.1:8050/">http://127.0.0.1:8050/</a> to access the app on multiple tabs or if you close it.
+                                <ul>
+                                    <li>
+                                        In your Terminal you might see messages describing an <code>error</code> or that <code>an Excel sheet could not be found</code>.
+                                        You can ignore these as these are for troubleshooting purposes.
+                                    </li>
+                                </ul>
+                            </li>
+                            <br>
+                            <li>
+                                <b>This is very important!</b> Once you are done using the app, go back to your Terminal, type <code>stop</code> and press <code>Enter</code>.
+                                This will stop the local server from running on your machine since this process requires a significant amount of resources to run.
+                            </li>
+                            <br>
+                            <li>
+                                If you executed the <code>stop</code> command and want to restart a local server for Christofk_Grapha on your computer
+                                , you will need to open the <code>control_app_mac.command</code> file again which can be found in <code>Desktop/Christofk_Grapha/scripts</code> folder.
+                            </li>
+                            <br>
+                            <li>
+                                Please note that there are regular updates to Christofk_Grapha, therefore it is advisable to execute the <code>update</code> command once in a while.
+                            </li>
+                        </ol>
+                    </p>
+                </section>
 
-            <section id="section4"><h1>Section 4</h1><p>Content for Section 4...</p></section>
+            </section>
+
+            <section id="section3">
+                <h1>Section 3</h1>
+                <p>
+                    Content for Section 3...
+                </p>
+            
+            </section>
+
+            <section id="section4">
+                <h1>Section 4</h1>
+                <p>
+                    Content for Section 4...
+                </p>
+            
+            </section>
 
         </div>
     </div>
