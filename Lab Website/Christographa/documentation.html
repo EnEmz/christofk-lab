@@ -114,8 +114,12 @@
                 </li>
 
                 <li class="sidebar-item">
-                    <a href="#section3" onclick="toggleSubsections('section1-subsections')">Section 3</a>
-                
+                    <a href="#upload-data" onclick="toggleSections('upload-data'); toggleSubsections('upload-data-subsections')">Uploading Files</a>
+                    <ul id="upload-data-subsections" class="sub-section">
+                        <li><a href="#upload-data-pool">Metabolomics Pool Data</a></li>
+                        <li><a href="#upload-data-iso">Metabolomics Isotopologue Data</a></li>
+                        <li><a href="#upload-data-lingress">External Variable Data for Linear Regression with Metabolomics</a></li>
+                    </ul>
                 </li>
 
                 <li class="sidebar-item">
@@ -357,6 +361,11 @@
                             </li>
                             <br>
                             <li>
+                                Please note that there are regular updates to Christofk_Grapha, therefore it is advisable to execute the <code>update</code> command once in a while
+                                after launching <code>control_app_windows.bat</code>.
+                            </li>
+                            <br>
+                            <li>
                                 If you would like to use Christofk_Grapha again after closing, follow Step 1.
                             </li>
                         </ol>
@@ -366,12 +375,37 @@
 
             </section>
 
-            <section id="section3">
-                <h1>Section 3</h1>
+            <section id="upload-data">
+                <h1>Uploading Files</h1>
                 <p>
-                    Content for Section 3...
+                    Here is the description on the templates of the Excel files need to be uploaded to Christofk_Grapha.
+                    The data can be metabolomics pool data, metabolomics isotopologue data and external variable data
+                    that can be for linear regression with metabolomics data.
+                    <br><br>
+                    Click on or drag your Excel file to the <code>Drag and Drop Metabolomics Excel File or Select Files</code> box.
                 </p>
-            
+                <br>
+                
+                <section id="upload-data-pool">
+                    <h3>Metabolomics Pool Data</h3>
+                    <p>
+
+                    </p>
+                </section>
+
+                <section id="upload-data-iso">
+                    <h3>Metabolomics Isotopologue Data</h3>
+                    <p>
+                        
+                    </p>
+                </section>
+
+                <section id="upload-data-lingress">
+                    <h3>External Variable Data for Linear Regression with Metabolomics</h3>
+                    <p>
+                        
+                    </p>
+                </section>
             </section>
 
             <section id="section4">
