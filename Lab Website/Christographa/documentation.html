@@ -383,20 +383,48 @@
                     that can be for linear regression with metabolomics data.
                     <br><br>
                     Click on or drag your Excel file to the <code>Drag and Drop Metabolomics Excel File or Select Files</code> box.
+                    <br><br>
+                    Only Excel <code>.xls or .xlsx</code> files are accepted. Christofk lab always checks if the analyzed
+                    metabolomics data file is functioning with Christofk_Grapha. 
+                    <br><br>
+                    Also, please note that for functionality purposes, it is best to upload data that has not been normalized
+                    directly in the Excel file.
+                    <br><br>
+                    You are welcome to add your own Excel sheets as long as they are not named 
+                    <code>PoolAfterDF</code>, <code>Normalized</code> or <code>Lingress</code>.
                 </p>
                 <br>
                 
                 <section id="upload-data-pool">
                     <h3>Metabolomics Pool Data</h3>
                     <p>
-
+                        Metabolomics pool data is mandatory for Christofk_Grapha to function. Isotopologue and external 
+                        variable data is optional depending on your experimentation.
+                        The program reads a sheet <code>PoolAfterDF</code> where the metabolomics pool data is located. 
+                        In this sheet as well includes variables that are used for normalizing the pool data such
+                        <code>trifluoromethanesulfonate</code> or <code>quantity/sample</code> (cell count, mg, etc.)
+                        If you want to have additional normalization variable for the metabolomics data, please reach
+                        out, so that we can help you with that.
                     </p>
                 </section>
 
                 <section id="upload-data-iso">
                     <h3>Metabolomics Isotopologue Data</h3>
                     <p>
-                        
+                        If you had Isotopologue Tracing in your experiment, the Excel file that is sent to you will include 
+                        four Excel sheets: <code>Original Corrected Normalized PoolAfterDF</code>:
+                        <br>
+                        <code>Original</code> is for the metabolomics data before the correction for heavy isotopologue abundance.
+                        <br>
+                        <code>Corrected</code> is for the metabolomics data after the correction for heavy isotopologue abundance.
+                        <br>
+                        <code>Normalized</code> is for the metabolomics data after the correction for heavy isotopologue abundance that has 
+                        been normalized from 0 to 1 for every metabolite.
+                        <br>
+                        <code>PoolAfterDF</code> is the metabolomics pool data.
+                        <br><br>
+                        Christofk_Grapha uses the <code>Normalized</code> sheet for visualizing the isotopologue data.
+                    
                     </p>
                 </section>
 
