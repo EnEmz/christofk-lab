@@ -89,6 +89,41 @@
         .sub-section a:hover {
             color: #d0dedf;
         }
+
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4); 
+        }
+        
+        /* Modal Content */
+        .modal-content {
+            margin: auto;
+            padding-top: 50px;
+            display: block;
+            max-width: 80%;
+            max-height: 80vh;
+            width: auto;
+            height: auto;
+        }
+        
+        /* Close Button */
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
     
        
     </style>
@@ -427,7 +462,7 @@
                         out, so that we can help you with that.
                         <br><br>
                         Please check this file for looking at a template for a file with pool data: 
-                        <a href="/christofkgrapha/example_data/data_pool_only.xlsx" download>data_pool_only.xlsx</a>
+                        <a href="./christofkgrapha/example_data/data_pool_only.xlsx" download>data_pool_only.xlsx</a>
                         <br><br>
                     </p>
                 </section>
@@ -450,7 +485,7 @@
                         Christofk_Grapha uses the <code>Normalized</code> sheet for visualizing the isotopologue data.
                         <br><br>
                         Please check this file for looking at a template for a file with isotopologue data: 
-                        <a href="/christofkgrapha/example_data/data_w_isotopologues.xlsx" download>data_w_isotopologues.xlsx</a>
+                        <a href="./example_data/data_w_isotopologues.xlsx" download>data_w_isotopologues.xlsx</a>
                         <br><br>
                     </p>
                 </section>
@@ -462,7 +497,7 @@
                         Christofk_Grapha will read an Excel sheet named <code>Lingress</code>. The 
                         <br><br>
                         Please check this file for looking at a template for a file with pool data:
-                        <a href="/christofkgrapha/example_data/data_w_isotopologues_and_lingress.xlsx" download>data_w_isotopologues_and_lingress.xlsx</a>
+                        <a href="./example_data/data_w_isotopologues_and_lingress.xlsx" download>data_w_isotopologues_and_lingress.xlsx</a>
                         <br><br>
                     </p>
                 </section>
@@ -487,7 +522,7 @@
                         Select as many classes as you would like to be displayed and click on <code>Update</code> button
                         for the selection to be saved.
                         <br><br>
-                        <img src="/christofkgrapha/gifs/classes.gif" alt="Metabolite Classes Selection GIF">
+                        <img class="clickable-gif" src="./gifs/classes.gif" alt="Metabolite Classes Selection GIF" style="width:300px; height:auto; cursor:pointer; margin:auto; display:block;">
                         
                     </p>
                     <br>
@@ -526,6 +561,19 @@
     </div>
 </body>
 
+
+<!-- Adjusted GIF Images for fullscreen -->
+<img class="clickable-gif" src="./gifs/classes.gif" alt="Metabolite Classes Selection GIF" style="width:70%; height:auto; cursor:pointer; margin:auto; display:none;">
+
+
+
+<!-- Modal Section -->
+<div id="myModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="modal-image">
+</div>
+
+
 <script>
     function toggleSections(selectedSectionId) {
         // Hide all sections
@@ -561,6 +609,38 @@
         toggleSections('home');
         toggleSubsections('home-subsections');
     };
+
+
+    // JavaScript for Modal
+    var modal = document.getElementById("myModal");
+    var modalImg = document.getElementById("modal-image"); // This will be the <img> tag inside your modal
+
+    // Function to open the modal with the clicked image
+    function openModalWithImage(clickedImgSrc) {
+        modal.style.display = "block";
+        modalImg.src = clickedImgSrc;
+    }
+
+    // Close the modal when the close button (span) is clicked
+    var span = document.getElementsByClassName("close")[0];
+    span.onclick = function() { 
+        modal.style.display = "none";
+    }
+
+    // Close the modal if the user clicks anywhere outside of the modal content
+    modal.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    // Add click event listeners to all images with class 'clickable-gif'
+    var gifImages = document.getElementsByClassName("clickable-gif");
+    for (var i = 0; i < gifImages.length; i++) {
+        gifImages[i].onclick = function() {
+            openModalWithImage(this.src);
+        }
+    }
 </script>
 
 </html>
