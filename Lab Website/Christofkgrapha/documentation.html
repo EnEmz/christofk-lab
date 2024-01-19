@@ -4,7 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <title>Documentation Site</title>
+
     <style>
         /* Google Font Import */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
@@ -114,7 +118,7 @@
                 </li>
 
                 <li class="sidebar-item">
-                    <a href="#upload-data" onclick="toggleSections('upload-data'); toggleSubsections('upload-data-subsections')">Uploading Files</a>
+                    <a href="#upload-data" onclick="toggleSections('upload-data'); toggleSubsections('upload-data-subsections')">Uploading Data</a>
                     <ul id="upload-data-subsections" class="sub-section">
                         <li><a href="#upload-data-pool">Metabolomics Pool Data</a></li>
                         <li><a href="#upload-data-iso">Metabolomics Isotopologue Data</a></li>
@@ -123,10 +127,26 @@
                 </li>
 
                 <li class="sidebar-item">
-                    <a href="#section4" onclick="toggleSubsections('section1-subsections')">Section 4</a>
-                
+                    <a href="#getting-started" onclick="toggleSections('getting-started'); toggleSubsections('getting-started-subsections')">Getting Started</a>
+                    <ul id="getting-started-subsections" class="sub-section">
+                        <li><a href="#getting-started-classes">Metabolite Classes</a></li>
+                        <li><a href="#getting-started-normalization">Pool Data Normalization</a></li>
+                        <li><a href="#getting-started-groups">Sample Groups and Order</a></li>
+                    </ul>
                 </li>
 
+                <li class="sidebar-item">
+                    <a href="#analysis-graphs" onclick="toggleSections('analysis-graphs'); toggleSubsections('analysis-graphs-subsections')">Analysis Graphs</a>
+                    <ul id="analysis-graphs-subsections" class="sub-section">
+                        <li><a href="#analysis-graphs-bulk-heatmap">Bulk Heatmap</a></li>
+                        <li><a href="#analysis-graphs-bulk-iso-heatmap">Bulk Isotopologue Heatmap</a></li>
+                        <li><a href="#analysis-graphs-custom-heatmap">Custom Heatmap</a></li>
+                        <li><a href="#analysis-graphs-bulk-metabolomics">Bulk Metabolomics</a></li>
+                        <li><a href="#analysis-graphs-iso-distribution">Isotopologue Distribution</a></li>
+                        <li><a href="#analysis-graphs-volcano">Volcano Plot</a></li>
+                        <li><a href="#analysis-graphs-lingress">Linear Regression</a></li>
+                    </ul>
+                </li>
             </ul>
         </nav>
 
@@ -376,7 +396,7 @@
             </section>
 
             <section id="upload-data">
-                <h1>Uploading Files</h1>
+                <h1>Uploading Data</h1>
                 <p>
                     Here is the description on the templates of the Excel files need to be uploaded to Christofk_Grapha.
                     The data can be metabolomics pool data, metabolomics isotopologue data and external variable data
@@ -405,13 +425,17 @@
                         <code>trifluoromethanesulfonate</code> or <code>quantity/sample</code> (cell count, mg, etc.)
                         If you want to have additional normalization variable for the metabolomics data, please reach
                         out, so that we can help you with that.
+                        <br><br>
+                        Please check this file for looking at a template for a file with pool data: 
+                        <a href="/christofkgrapha/example_data/data_pool_only.xlsx" download>data_pool_only.xlsx</a>
+                        <br><br>
                     </p>
                 </section>
 
                 <section id="upload-data-iso">
                     <h3>Metabolomics Isotopologue Data</h3>
                     <p>
-                        If you had Isotopologue Tracing in your experiment, the Excel file that is sent to you will include 
+                        If you have Isotopologue Tracing in your experiment, the Excel file that is sent to you will include 
                         four Excel sheets: <code>Original Corrected Normalized PoolAfterDF</code>:
                         <br>
                         <code>Original</code> is for the metabolomics data before the correction for heavy isotopologue abundance.
@@ -424,24 +448,78 @@
                         <code>PoolAfterDF</code> is the metabolomics pool data.
                         <br><br>
                         Christofk_Grapha uses the <code>Normalized</code> sheet for visualizing the isotopologue data.
-                    
+                        <br><br>
+                        Please check this file for looking at a template for a file with isotopologue data: 
+                        <a href="/christofkgrapha/example_data/data_w_isotopologues.xlsx" download>data_w_isotopologues.xlsx</a>
+                        <br><br>
                     </p>
                 </section>
 
                 <section id="upload-data-lingress">
                     <h3>External Variable Data for Linear Regression with Metabolomics</h3>
                     <p>
-                        
+                        If you have an External Variable that you would like to do linear regression with metabolomics pool data,
+                        Christofk_Grapha will read an Excel sheet named <code>Lingress</code>. The 
+                        <br><br>
+                        Please check this file for looking at a template for a file with pool data:
+                        <a href="/christofkgrapha/example_data/data_w_isotopologues_and_lingress.xlsx" download>data_w_isotopologues_and_lingress.xlsx</a>
+                        <br><br>
                     </p>
                 </section>
             </section>
 
-            <section id="section4">
-                <h1>Section 4</h1>
+
+            <section id="getting-started">
+                <h1>Getting Started</h1>
+                <p>
+                    Once the data is uploaded, let's set the classes to be displayed, pool data normalization,
+                    sample groups and order that will be used in the data visualization.
+                </p>
+                <br>
+            
+                <section id="getting-started-classes">
+                    <h3>Metabolite Classes</h3>
+                    <p>
+                        You can select the metabolite classes that are to be displayed in your analysis graphs.
+                        If you click on <code>Select Metabolite Classes to be Displayed</code>, this will bring up 
+                        a pop up screen for selecting the classes. If you hover over
+                        <i class="fa fa-info-circle"></i> image, it will display the metabolite names in the class.
+                        Select as many classes as you would like to be displayed and click on <code>Update</code> button
+                        for the selection to be saved.
+                        <br>
+                        <a href="/christofkgrapha/gifs/classes.gif"
+                        
+                    </p>
+                    <br>
+                </section>
+
+                <section id="getting-started-normalization">
+                    <h3>Pool Data Normalization</h3>
+                    <p>
+                        
+                    </p>
+                    <br>
+                </section>
+
+                <section id="getting-started-groups">
+                    <h3>Sample Groups and Order</h3>
+                    <p>
+                        
+                    </p>
+                    <br>
+                </section>
+
+            </section>
+
+
+            <section id="analysis-graphs">
+                <h1>Analysis Graphs</h1>
                 <p>
                     Content for Section 4...
                 </p>
             
+
+
             </section>
 
         </div>
