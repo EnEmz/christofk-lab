@@ -769,6 +769,7 @@ class MetaboliteApp:
         new_file_path = file_path.replace('.csv', '_edited.xlsx')
         df.drop(columns=['Formula', 'IsotopeLabel'], errors='ignore', inplace=True)
         with pd.ExcelWriter(new_file_path) as writer:
+            df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
             df.to_excel(writer, sheet_name='PoolAfterDF', index=False)
         self.write_to_terminal(f"File saved successfully as {new_file_path}")
         
