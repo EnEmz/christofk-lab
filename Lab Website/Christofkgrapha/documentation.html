@@ -24,17 +24,17 @@
         #wrapper {
             display: flex;
             width: 100%; /* Full width of the viewport */
+            flex-direction: row;
         }
     
         #sidebar {
-            display: flex;
-            flex-direction: column;
             width: 30%; /* Set sidebar to 30% of the viewport width */
             background: #2c3e50; /* Darker shade for sidebar */
             color: #fff;
             padding: 20px;
             height: 100vh; /* Full height of the viewport */
             box-sizing: border-box; /* Include padding in width */
+            
         }
     
         .sidebar-list {
@@ -137,7 +137,7 @@
                 </li>
 
                 <li class="sidebar-item">
-                    <a href="#local-server-config" onclick="toggleSections('local-server-config-body'); toggleSubsections('local-server-config-subsections')">Local Server Configuration</a>
+                    <a href="#local-server-config" onclick="toggleSections('local-server-config-body'); toggleSubsections('local-server-config-subsections')">Local Server Configuration (Non-UCLA)</a>
                     <ul id="local-server-config-subsections" class="sub-section">
                         <li><a href="#local-server-config-mac">Mac and Linux</a></li>
                         <li><a href="#local-server-config-windows">Windows</a></li>
@@ -207,7 +207,7 @@
             </section>
 
             <section id="local-server-config-body">
-                <h1>Non-UCLA Local Server Configuration</h1>
+                <h1>Local Server Configuration (Non-UCLA)</h1>
                 <p>
                     We are planning to release Christofk_Grapha on UCLA server where a user that has a 
                     UCLA login, will be able to directly login and use this tool. 
@@ -507,8 +507,12 @@
             <section id="getting-started">
                 <h1>Getting Started</h1>
                 <p>
-                    Once the data is uploaded, let's set the classes to be displayed, pool data normalization,
-                    sample groups and order that will be used in the data visualization.
+                    Once the data is uploaded, there is a status bar that will inform you what type of data is ready to be displayed.
+                    If the message does not include a data type that you have in your experiment, go to
+                    <a href='#upload-data'>upload data section</a> and troubleshoot your files with provided Excel file templates.
+                    <br><br>
+                    Once you have succesfully seen the correct status on your uploaded file let's set the classes to be displayed, 
+                    pool data normalization, sample groups and order that will be used in the data visualization.
                 </p>
                 <br>
             
@@ -523,7 +527,8 @@
                         for the selection to be saved.
                         <br><br>
                         <img class="clickable-gif" src="./gifs/classes.gif" alt="Metabolite Classes Selection GIF" style="width:300px; height:auto; cursor:pointer; margin:auto; display:block;">
-                        
+                        <br>
+                        You need to select more than one metabolite class for the software to work.
                     </p>
                     <br>
                 </section>
@@ -531,7 +536,21 @@
                 <section id="getting-started-normalization">
                     <h3>Pool Data Normalization</h3>
                     <p>
-                        
+                        You can select normalization variables to which the metabolomics pool data is normalized to 
+                        in the analysis graphs if you click <code>Change Normalization Variables</code>. 
+                        You are welcome to select no normalization variables but it is advisable
+                        to normalize your data for accuracy. <code>Trifluoromethanesulfonate</code> is an internal
+                        standard used by the Christofk lab in LC/MS metabolite extraction. Additionally,
+                        if you provide <code>quantity/sample</code> amount such as cell count, mgs, etc., from
+                        which metabolites were extracted from, it is a great way to account for amount of material that
+                        metabolites were extracted from when visualizing the data.
+                        <br><br>
+                        <img class="clickable-gif" src="./gifs/normalization.gif" alt="Metabolite Classes Selection GIF" style="width:300px; height:auto; cursor:pointer; margin:auto; display:block;">
+                        <br>
+                        Make sure to click <code>Update</code> to save your selection.
+                        <br><br>
+                        It is advisable to not upload data that has been previously normalized, as some graphs manipulate 0 value
+                        (undetected) data which would result in incorrect visualizations. 
                     </p>
                     <br>
                 </section>
@@ -539,7 +558,26 @@
                 <section id="getting-started-groups">
                     <h3>Sample Groups and Order</h3>
                     <p>
-                        
+                        The software will automatically read all of your sample replicates, but it is up to you 
+                        to group them. If you click <code>Group Sample Replicates for Data Analysis</code>, you can
+                        type any name for your sample groups. There is no limit on how many sample groups you can have.
+                        <br><br>
+                        The samples with the same name, for example <code>ctrl</code> will be grouped together and displayed
+                        as a single sample group. If you type another group name such as <code>cond</code>, that would start
+                        a new sample group. Make sure to press the <code>Update</code> button to save your selection
+                        <br><br>
+                        <img class="clickable-gif" src="./gifs/groups.gif" alt="Metabolite Classes Selection GIF" style="width:300px; height:auto; cursor:pointer; margin:auto; display:block;">
+                        <br>
+                        You need to have at least one sample group for the software to work.
+                        <br><br>
+                        In order to change the ordering of your selected sample groups, click
+                        <code>Order the Sample Groups for Display</code>. This will bring up 
+                        a summary of your entered sample groups where you can drag them horizontally
+                        to change their order. 
+                        <br><br>
+                        <img class="clickable-gif" src="./gifs/order.gif" alt="Metabolite Classes Selection GIF" style="width:300px; height:auto; cursor:pointer; margin:auto; display:block;">
+                        <br>
+                        Changes made in sample group order selection might reset your previously selected order.
                     </p>
                     <br>
                 </section>
@@ -550,21 +588,65 @@
             <section id="analysis-graphs">
                 <h1>Analysis Graphs</h1>
                 <p>
-                    Content for Section 4...
+                    This is the description of the analysis graphs that are available in Chrisofk_Grapha.
                 </p>
             
+                <section id="analysis-graphs-bulk-heatmap">
+                    <h3>Bulk Heatmap</h3>
+                    <p>
+                        Bulk Heatmap displays all of the available metabolomics data in a heatmap fashion.
+                        For it to work, the user needs to select a <code>Control Group</code> by which 
+                        the color gradient is created. 
+                    </p>
+                </section>
 
+                <section id="analysis-graphs-bulk-iso-heatmap">
+                    <h3>Bulk Isotopologue Heatmap</h3>
+                    <p>
+                        
+                    </p>
+                </section>
+
+                <section id="analysis-graphs-custom-heatmap">
+                    <h3>Custom Heatmap</h3>
+                    <p>
+                        
+                    </p>
+                </section>
+
+                <section id="analysis-graphs-bulk-metabolomics">
+                    <h3>Bulk Metabolomics</h3>
+                    <p>
+                        
+                    </p>
+                </section>
+
+                <section id="analysis-graphs-iso-distribution">
+                    <h3>Isotopologue Distribution</h3>
+                    <p>
+                        
+                    </p>
+                </section>
+
+                <section id="analysis-graphs-volcano">
+                    <h3>Volcano Plot</h3>
+                    <p>
+                        
+                    </p>
+                </section>
+
+                <section id="analysis-graphs-lingress">
+                    <h3>Linear Regression</h3>
+                    <p>
+                        
+                    </p>
+                </section>
 
             </section>
 
         </div>
     </div>
 </body>
-
-
-<!-- Adjusted GIF Images for fullscreen -->
-<img class="clickable-gif" src="./gifs/classes.gif" alt="Metabolite Classes Selection GIF" style="width:70%; height:auto; cursor:pointer; margin:auto; display:none;">
-
 
 
 <!-- Modal Section -->
