@@ -762,6 +762,7 @@ class MetaboliteApp:
 
     def convert_save_csv_file(self, df, file_path):
         new_file_path = file_path.replace('.csv', '_edited.csv')
+        df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
         df.to_csv(new_file_path, index=False)
         self.write_to_terminal(f"File saved successfully as {new_file_path}")
 
