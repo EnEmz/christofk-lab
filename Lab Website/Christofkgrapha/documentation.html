@@ -355,7 +355,7 @@
                             <br>
                             <li>
                                 Once it says that <code>Dash is running on …</code>, you are good to go. The script will automatically open a new tab in your default browser to where you can use the app. 
-                                You can go to <a href="http://127.0.0.1:8050/">http://127.0.0.1:8050/</a> to access the app on multiple tabs or if you close it.
+                                You can go to <a href="http://127.0.0.1:8050/" target="_blank">http://127.0.0.1:8050/</a> to access the app on multiple tabs or if you close it.
                                 <ul>
                                     <li>
                                         In your Terminal you might see messages describing an <code>error</code> or that <code>an Excel sheet could not be found</code>.
@@ -406,7 +406,7 @@
                             </li>
                             <br>
                             <li>
-                                Go to <a href="http://127.0.0.1:8050/">http://127.0.0.1:8050/</a> to access the app on multiple tabs 
+                                Go to <a href="http://127.0.0.1:8050/" target="_blank">http://127.0.0.1:8050/</a> to access the app on multiple tabs 
                                 or if you accidentally close it while the local server is running.
                             </li>
                             <br>
@@ -596,21 +596,48 @@
                     <p>
                         Bulk Heatmap displays all of the available metabolomics data in a heatmap fashion.
                         For it to work, the user needs to select a <code>Control Group</code> by which 
-                        the color gradient is created. 
+                        the color gradient is created. The data is normalized by the selection of normalization
+                        variables.
+                        <br><br>
+                        The data is converted to a log 2 scale and the selected control group is 
+                        adjusted in this fashion:
+                        <br><br>
+                        Put the latex code here
+                        <br><br>
+                        The red dot represents any statistical significance between every possible
+                        sample group comparison. This is done by 
+                        <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html" target="_blank">scipy.stats.ttest_ind Python package tool</a> 
+                        which performs a two sided Student t-test while assuming unequal variance.
+                        If the calculated p-value is below 0.05, it will be displayed with the red dot
+                        If a user hovers over the red dot, the exact group comparisons that are statistically
+                        significant will be displayed.
+                        <br><br>
+                        <code>nd</code> corresponds to not detected.
+                        <code>0</code> corresponds to values being set to 0 to not impact the colorscale because all samples
+                        in the selected <code>Control Group</code> are not detected.
+                        <br><br>
+                        The heatmap is customizable if the user clicks <code>Change Heatmap Settings</code>
+                        button. After changing the settings, the heatmap will need to be regenerated.
                     </p>
                 </section>
 
                 <section id="analysis-graphs-bulk-iso-heatmap">
                     <h3>Bulk Isotopologue Heatmap</h3>
                     <p>
-                        
+                        Bulk Isotopologue Heatmap displays isotopologue data in a heatmap. The colorscale is
+                        is set between 0 and 1. The red dot functions the same way as in the bulk heatmap.
+                        <br><br>
+                        The heatmap is customizable if the user clicks <code>Change Heatmap Settings</code>
+                        button. After changing the settings, the heatmap will need to be regenerated.
                     </p>
                 </section>
 
                 <section id="analysis-graphs-custom-heatmap">
                     <h3>Custom Heatmap</h3>
                     <p>
-                        
+                        Custom Heatmap creates a metabolomics pool data heatmap based on user submitted
+                        user metabolite list. You can search for metabolites in the search bar and options
+                        are from all detected metabolites. 
                     </p>
                 </section>
 
