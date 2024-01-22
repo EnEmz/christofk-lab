@@ -708,33 +708,43 @@ class MetaboliteApp:
 
     def save_data(self):
         try:
-            # Collect remaining names from listboxes
+            # First, let's make sure we're working with the latest RT values
+            self.update_dataframe_rt(self.filtered_df_neg, self.listbox_neg, self.listbox_rt_neg)
+            self.update_dataframe_rt(self.filtered_df_pos, self.listbox_pos, self.listbox_rt_pos)
+            
+            # Then, filter the DataFrame to only include entries present in the listboxes
             remaining_names_neg = [self.listbox_neg.get(idx).strip() for idx in range(self.listbox_neg.size())]
+            remaining_df_neg = self.filtered_df_neg[self.filtered_df_neg['simple_name'].isin(remaining_names_neg)]
+            
             remaining_names_pos = [self.listbox_pos.get(idx).strip() for idx in range(self.listbox_pos.size())]
-
-            # When filtering the dataframes, explicitly create copies
-            self.filtered_df_neg = self.df_met_neg[self.df_met_neg['simple_name'].isin(remaining_names_neg)].copy()
-            self.filtered_df_pos = self.df_met_pos[self.df_met_pos['simple_name'].isin(remaining_names_pos)].copy()
-
-            # Now, you can safely drop the 'simple_name' column
-            self.filtered_df_neg.drop(columns=['simple_name'], inplace=True)
-            self.filtered_df_pos.drop(columns=['simple_name'], inplace=True)
-
-            # Reset the index of the DataFrames
-            self.filtered_df_neg.reset_index(drop=True, inplace=True)
-            self.filtered_df_pos.reset_index(drop=True, inplace=True)
-
-            # Save the DataFrames to CSV
-            self.filtered_df_neg.to_csv(path_custom_list_neg, index=True)
-            self.filtered_df_pos.to_csv(path_custom_list_pos, index=True)
+            remaining_df_pos = self.filtered_df_pos[self.filtered_df_pos['simple_name'].isin(remaining_names_pos)]
+            
+            # Drop the 'simple_name' column as it was only used for display and selection purposes
+            if 'simple_name' in remaining_df_neg.columns:
+                remaining_df_neg.drop(columns=['simple_name'], inplace=True)
+            if 'simple_name' in remaining_df_pos.columns:
+                remaining_df_pos.drop(columns=['simple_name'], inplace=True)
+            
+            # Finally, save the filtered DataFrames to CSV
+            remaining_df_neg.to_csv(path_custom_list_neg, index=False)
+            remaining_df_pos.to_csv(path_custom_list_pos, index=False)
             self.write_to_terminal("Data saved successfully.")
-            
-            self.countdown_before_exit(5)
-            
         except Exception as e:
             messagebox.showerror("Error", "Failed to save data: " + str(e))
             self.write_to_terminal("Error: " + str(e))  # For terminal output
-            
+
+    def update_dataframe_rt(self, df, listbox_met, listbox_rt):
+        for idx in range(listbox_met.size()):
+            simple_name = listbox_met.get(idx).strip()
+            rt_value = float(listbox_rt.get(idx))
+            # Print the simple name and rt value for debugging
+            self.write_to_terminal(f"Updating RT for {simple_name}: {rt_value}")
+            df_index = df.index[df['simple_name'] == simple_name].tolist()
+            # Check if there is a matching index
+            if df_index:
+                df.at[df_index[0], 'rt'] = rt_value
+            else:
+                self.write_to_terminal(f"No matching simple_name found for {simple_name} in the DataFrame.")
             
     def convert_metabolomics_file(self):
         file_path = self.file_path_entry_conv.get()
