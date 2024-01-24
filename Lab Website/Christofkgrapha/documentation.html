@@ -124,15 +124,6 @@
             font-weight: bold;
             cursor: pointer;
         }
-
-        .graph-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-        }
     
     </style>
 </head>
@@ -597,12 +588,16 @@
                 <h1>Analysis Graphs</h1>
                 <p>
                     This is the description of the analysis graphs that are available in Chrisofk_Grapha.
+                    Additionally, graph examples are embedded in the website, so that you can get familiar with the functionality.
+                    There is a lot of interactivity available in these visualizations like zooming in, downloading the currently
+                    displayed plot and hovering over datapoints to see more information.
                 </p>
             
                 <section id="analysis-graphs-bulk-heatmap">
                     <h3>Bulk Heatmap</h3>
                     <p>
-                        Bulk Heatmap displays all of the available metabolomics data in a heatmap fashion.
+                        Bulk Heatmap displays all of the available metabolomics data in a heatmap fashion
+                        based on the metabolite classes that have been selected.
                         For it to work, the user needs to select a <code>Control Group</code> by which 
                         the color gradient is created. The data is normalized by the selection of normalization
                         variables.
@@ -626,6 +621,9 @@
                         <br><br>
                         The heatmap is customizable if the user clicks <code>Change Heatmap Settings</code>
                         button. After changing the settings, the heatmap will need to be regenerated.
+                        <br><br>
+                        You can interact with the figure below and it is how it is displayed in Christofk_Grapha:
+                        <iframe src="./graphs/heatmap.html" style="width: 100%; height: 500px; border: none;"></iframe>
                     </p>
                 </section>
 
@@ -634,9 +632,14 @@
                     <p>
                         Bulk Isotopologue Heatmap displays isotopologue data in a heatmap. The colorscale is
                         is set between 0 and 1. The red dot functions the same way as in the bulk heatmap.
+                        <code>nd</code> and <code>0</code> are the same as decribed before.
                         <br><br>
                         The heatmap is customizable if the user clicks <code>Change Heatmap Settings</code>
                         button. After changing the settings, the heatmap will need to be regenerated.
+                        <br><br>
+                        You can interact with the figure below and it is how it is displayed in Christofk_Grapha:
+                        <iframe src="./graphs/heatmap_iso.html" style="width: 100%; height: 500px; border: none;"></iframe>
+
                     </p>
                 </section>
 
@@ -646,13 +649,30 @@
                         Custom Heatmap creates a metabolomics pool data heatmap based on user submitted
                         user metabolite list. You can search for metabolites in the search bar and options
                         are from all detected metabolites. 
+                        <code>nd</code> and <code>0</code> are the same as decribed before.
+                        <br><br>
+                        The heatmap is customizable if the user clicks <code>Change Heatmap Settings</code>
+                        button. After changing the settings, the heatmap will need to be regenerated.
+                        <br><br>
+                        You can interact with the figure below and it is how it is displayed in Christofk_Grapha:
+                        <div style="display: flex; justify-content: center; align-items: center; height: 450px;">
+                            <iframe src="./graphs/custom_heatmap.html" style="width: 100%; height: 500px; border: none;"></iframe>
+                        </div>
                     </p>
                 </section>
 
                 <section id="analysis-graphs-bulk-metabolomics">
                     <h3>Bulk Metabolomics</h3>
                     <p>
-                        
+                        Bulk metabolomics displays isotopologue data (if available) in a bar plot and metabolomics pool data
+                        in a box plot. The pool data is normalized by the selected normalization variables and metabolite classes.
+                        <br><br>
+                        This is an example of the isotopologue data graph. It is displayed in bulk metabolomics tab only if 
+                        isotopologue data is present in the submitted Excel sheet.
+                        You can interact with the figure below and it is how it is displayed in Christofk_Grapha:
+                        <div style="display: flex; justify-content: center; align-items: center; height: 450px;">
+                            <iframe src="./graphs/iso_glucose.html" style="width: 70%; height: 450px; border: none;"></iframe>
+                        </div>
                     </p>
                 </section>
 
@@ -660,6 +680,12 @@
                     <h3>Isotopologue Distribution</h3>
                     <p>
                         
+
+                        This is an example of the isotopologue distribution graph.
+                        You can interact with the figure below and it is how it is displayed in Christofk_Grapha:
+                        <div style="display: flex; justify-content: center; align-items: center; height: 500px;">
+                            <iframe src="./graphs/iso_distribution.html" style="width: 100%; height: 500px; border: none;"></iframe>
+                        </div>
                     </p>
                 </section>
 
