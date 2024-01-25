@@ -726,8 +726,8 @@ class MetaboliteApp:
                 remaining_df_pos.drop(columns=['simple_name'], inplace=True)
             
             # Finally, save the filtered DataFrames to CSV
-            remaining_df_neg.to_csv(path_custom_list_neg, index=False)
-            remaining_df_pos.to_csv(path_custom_list_pos, index=False)
+            remaining_df_neg.to_csv(path_custom_list_neg, index=True)
+            remaining_df_pos.to_csv(path_custom_list_pos, index=True)
             self.write_to_terminal("Data saved successfully.")
         except Exception as e:
             messagebox.showerror("Error", "Failed to save data: " + str(e))
@@ -739,12 +739,14 @@ class MetaboliteApp:
             rt_value = float(listbox_rt.get(idx))
             # Print the simple name and rt value for debugging
             self.write_to_terminal(f"Updating RT for {simple_name}: {rt_value}")
-            df_index = df.index[df['simple_name'] == simple_name].tolist()
-            # Check if there is a matching index
-            if df_index:
-                df.at[df_index[0], 'rt'] = rt_value
+            df_indices = df.index[df['simple_name'] == simple_name].tolist()
+            # Check if there are matching indices and update all occurrences
+            if df_indices:
+                for df_index in df_indices:
+                    df.at[df_index, 'rt'] = rt_value
             else:
-                self.write_to_terminal(f"No matching simple_name found for {simple_name} in the DataFrame.")
+                # Handle the case where the simple_name is not found
+                self.write_to_terminal(f"No matching entries for {simple_name} found to update.")
             
     def convert_metabolomics_file(self):
         file_path = self.file_path_entry_conv.get()
