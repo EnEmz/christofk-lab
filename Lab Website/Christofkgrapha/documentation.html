@@ -590,8 +590,10 @@
                     This is the description of the analysis graphs that are available in Chrisofk_Grapha.
                     Additionally, graph examples are embedded in the website, so that you can get familiar with the functionality.
                     There is a lot of interactivity available in these visualizations like zooming in, downloading the currently
-                    displayed plot and hovering over datapoints to see more information.
+                    displayed plot and hovering over datapoints to see more information. If you would like to reset the axis
+                    after zooming in, <code>Double Click</code> with your mouse on the graph.
                 </p>
+                <br>
             
                 <section id="analysis-graphs-bulk-heatmap">
                     <h3>Bulk Heatmap</h3>
@@ -609,7 +611,7 @@
                         <br><br>
                         The red dot represents any statistical significance between every possible
                         sample group comparison. This is done by 
-                        <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html" target="_blank">scipy.stats.ttest_ind Python package tool</a> 
+                        <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html" target="_blank">scipy.stats.ttest_ind Python package</a> 
                         which performs a two sided Student t-test while assuming unequal variance.
                         If the calculated p-value is below 0.05, it will be displayed with the red dot
                         If a user hovers over the red dot, the exact group comparisons that are statistically
@@ -639,7 +641,6 @@
                         <br><br>
                         You can interact with the figure below and it is how it is displayed in Christofk_Grapha:
                         <iframe src="./graphs/heatmap_iso.html" style="width: 100%; height: 500px; border: none;"></iframe>
-
                     </p>
                 </section>
 
@@ -666,12 +667,33 @@
                     <p>
                         Bulk metabolomics displays isotopologue data (if available) in a bar plot and metabolomics pool data
                         in a box plot. The pool data is normalized by the selected normalization variables and metabolite classes.
+                        Both pool and isotopologue data pltos are customizable if you click the <code>Change Metabolomics Plot Settings</code>.
                         <br><br>
-                        This is an example of the isotopologue data graph. It is displayed in bulk metabolomics tab only if 
+                        This is an example of the isotopologue data bar plot. It is displayed in bulk metabolomics tab only if 
                         isotopologue data is present in the submitted Excel sheet.
                         You can interact with the figure below and it is how it is displayed in Christofk_Grapha:
                         <div style="display: flex; justify-content: center; align-items: center; height: 450px;">
                             <iframe src="./graphs/iso_glucose.html" style="width: 70%; height: 450px; border: none;"></iframe>
+                        </div>
+
+                        This is an example of the metabolomics pool data box plot. You can interact with the figure below and it is 
+                        how it is displayed in Christofk_Grapha:
+
+                        <div style="display: flex; justify-content: center; align-items: center; height: 450px;">
+                            <iframe src="./graphs/pool_glucose.html" style="width: 70%; height: 450px; border: none;"></iframe>
+                        </div>
+
+                        It is possible to do statistical significance calculations between specific sample groups. If you click
+                        <code>Configure p-value Calculations</code>, add as many comparisons between sample groups as you like 
+                        and they will be directly displayed on the isotopologue and pool data graphs. Below you can see examples
+                        of both isotopologue and pool data plots with p-value calculations. 
+                        
+                        <div style="display: flex; justify-content: center; align-items: center; height: 550px;">
+                            <iframe src="./graphs/iso_glucose_p.html" style="width: 70%; height: 550px; border: none;"></iframe>
+                        </div>
+
+                        <div style="display: flex; justify-content: center; align-items: center; height: 650px;">
+                            <iframe src="./graphs/pool_glucose_p.html" style="width: 70%; height: 650px; border: none;"></iframe>
                         </div>
                     </p>
                 </section>
@@ -688,20 +710,65 @@
                             <iframe src="./graphs/iso_distribution.html" style="width: 100%; height: 500px; border: none;"></iframe>
                         </div>
                     </p>
+                    <br>
                 </section>
 
                 <section id="analysis-graphs-volcano">
                     <h3>Volcano Plot</h3>
                     <p>
-                        
+                        Volcano plot displays the distribution of statistical significance vs fold change in a scatter plot.
+                        You can find more information <a href="https://en.wikipedia.org/wiki/Volcano_plot_(statistics) " target="_blank">here</a>.
+                        In Christofk_Grapha volcano plot, we display -log10 p_value vs log2 Fold Change for the metabolomics pool data
+                        between two selected sample groups. You need to select a <code>Control Group</code> and a <code>Condition Group</code> 
+                        for the volcano plot. Only the selected classes are displayed in the volcano plot and the data 
+                        is normalized by the selected normalization variables.
+                        <br><br>
+                        The coloring of the points is based on statistical significance and fold change between the two groups.
+                        You can change the fold change threshold as well as other volcano settings if you click 
+                        <code>Change Volcano Settings</code>.
+
+                        <div style="display: flex; justify-content: center; align-items: center; height: 850px;">
+                            <iframe src="./graphs/volcano.html" style="width: 100%; height: 850px; border: none;"></iframe>
+                        </div>
+
+                        <br><br>
+                        Once the volcano plot is generated, you can search for specific metabolites in the search bar after which 
+                        it is shown on the volcano plot. 
+                        <br><br>
+                        If you click on the volcano plot, metabolite name annotation can be added. You can see an example of this below.
+                        If you download the image, the annotations will be saved. <code>Mark Significant Points</code> button will add 
+                        annotations to all metabolites that are significant based on select fold change threshold.
+                        <br>
+                        <div style="display: flex; justify-content: center; align-items: center; height: 850px;">
+                            <iframe src="./graphs/volcano_annot.html" style="width: 100%; height: 850px; border: none;"></iframe>
+                        </div>
                     </p>
                 </section>
 
                 <section id="analysis-graphs-lingress">
                     <h3>Linear Regression</h3>
                     <p>
-                        
+                        In Christofk_Grapha, it is possible to link metabolomics pool data to an external variable that has been uploaded
+                        with linear regression. For more information on how to upload external variable data, please refer to the 
+                        <a href="#upload-data-lingress"> upload data section.</a>
+                        <br><br>
+                        Please note that the sample replicates in metabolomics and external variable measurements must be matched
+                        for this method of regression to be used correctly. Multiple external variable measurements can be uploaded
+                        at the same time.
+                        <br><br>
+                        For linear regression between metabolomics pool data and the uploaded external variable, we use 
+                        <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.linregress.html" target="_blank">scipy.stats.lingress Python Package</a>.
+                        The R2 (squared) value is calculated by the Pearson correlation. Below you can see an example of a 
+                        linear regression plot from Christofk_Grapha:
+
+                        <div style="display: flex; justify-content: center; align-items: center; height: 550px;">
+                            <iframe src="./graphs/lingress_glucose.html" style="width: 100%; height: 550px; border: none;"></iframe>
+                        </div>
+
+                        The linear regression plot is customizable if you press the <code>Change Linear Regression Plot Settings</code>.
+
                     </p>
+                    <br>
                 </section>
 
             </section>
