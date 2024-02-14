@@ -721,8 +721,11 @@ class MetaboliteApp:
             
             # Drop the 'simple_name' column as it was only used for display and selection purposes
             if 'simple_name' in remaining_df_neg.columns:
+                # Before dropping columns, explicitly create a copy of the DataFrame slices
+                remaining_df_neg = remaining_df_neg.copy()
                 remaining_df_neg.drop(columns=['simple_name'], inplace=True)
             if 'simple_name' in remaining_df_pos.columns:
+                remaining_df_pos = remaining_df_pos.copy()
                 remaining_df_pos.drop(columns=['simple_name'], inplace=True)
             
             # Finally, save the filtered DataFrames to CSV
@@ -759,6 +762,7 @@ class MetaboliteApp:
 
             # Process column names
             df.columns = [col.replace('___pos', '') if '___pos' in col else col for col in df.columns]
+            df.columns = [col.replace('___neg', '') if '___neg' in col else col for col in df.columns]
             df.columns = [self.replace_p_with_dot(col) for col in df.columns]
 
             if self.labelling_present_var_conversion.get():
