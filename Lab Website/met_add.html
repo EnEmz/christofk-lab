@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Main header information -->
+<head>
+    <meta charset="UTF-8">
+    <title>Pure Metabolite Standard Queue</title>
+    <style>
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: 'Helvetica', sans-serif;
+        }
+
+        #header_area {
+            background: #cccccc; /* Example background color */
+            padding: 10px;
+            text-align: center; /* Center-aligns content within the header area, including the <h1> */
+        }
+          
+        input {
+            user-select: auto !important;
+            -webkit-user-select: auto !important;
+        }
+        
+        html, body {
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        body.overlay::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 100;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 20px auto;
+        }
+        
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th:first-child, td:first-child {
+            min-width: 20px;
+        }
+        
+        th {
+            cursor: pointer;
+            background: #f9f9f9;
+        }
+        
+        .header_area {
+            background: #a7a7a7;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #header_buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #run_section {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button, input[type="date"] {
+            padding: 5px 10px; /* Adjust padding for better visual appearance */
+            cursor: pointer; /* Makes it clear that buttons are clickable */
+        }
+        
+        #new_met_form {
+            display: none; /* Keep modal hidden initially */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 101;
+            padding: 20px;
+            background: white;
+            border: 1px solid black;
+            box-shadow: 0px 3px 12px rgba(0,0,0,0.4);
+            width: 40%; /* Adjust width as necessary */
+            max-width: 600px; /* Adjust maximum width as necessary */
+            box-sizing: border-box;
+            overflow: hidden; /* Ensures no overflow */
+        }
+
+         #new_met_form div{
+			
+			margin-bottom: 20px;
+		}
+
+        #new_met_form label{
+			
+			display: inline-block;
+			margin-right: 10px;
+			width:calc(40% - 10px);
+			text-align: right;
+		}
+
+        #new_met_form button{
+			
+			height: 2em;
+		}
+
+        #disclaimer{
+			
+			width: 100%;
+			text-align: right;
+			font-size: 12px;
+			margin-bottom: 30px !important;
+		}
+		
+		#new_sample_form input, #new_sample_form textarea{
+			
+			padding: 4px;
+			width: 60%;
+			resize:none;
+			border:1px solid #646464;
+			font-weight: bolder;
+			-webkit-user-select:all;
+			user-select:all;
+		}
+		
+		input.error, textarea.error{
+			
+			border-color:red !important;
+			background: #edd4d4;
+		}
+		
+        .error_console{
+            
+            color:red;
+            font-size: 14px;
+        }
+          
+          /* The overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100; /* Ensure it's below the modal */
+          }
+          
+          /* Additional styles for visibility, positioning, and aesthetics */
+          .visible {
+            display: block;
+          }
+          
+          .error_console {
+            color: red;
+            margin: 10px 0;
+          }
+          
+          input.error, textarea.error {
+            border-color: red !important;
+            background: #edd4d4;
+          }
+          
+          #disclaimer {
+            font-size: 12px;
+            text-align: right;
+            margin-bottom: 20px; /* Adjust as needed */
+          }
+
+          #status_bar{
+	
+			font-weight: lighter;
+			letter-spacing: 0.5px;
+			color:white;
+			padding:1em;
+			font-size: 14px;
+			width: 100%;
+			margin-bottom: 0.5em;
+			position: fixed;
+			top:-50px;
+			-webkit-transition: top 0.2s;
+			transition: top 0.2s;
+			z-index: 100000;
+		}
+
+		#status_bar.show{
+
+			top:0px;
+		}
+
+		#status_bar.success{
+
+			background: #4aa24a;
+		}
+
+		#status_bar.error{
+
+			background: #af4949;
+		}
+
+
+    </style>
+
+</head>
+<body>
+
+
+<div id = "header_area">
+
+    <h1 class = 'header'>Christofk Lab Pure Metabolite Standard List</h1>
+
+    <div class = "header" id = 'header_buttons'>
+
+        <button id = 'add_new_mets_button'>Add New Metabolites</button>
+        <button id = 'delete_selected_mets_button'>Delete Selection</button>
+
+        <div id = "run_section">
+                
+            <button id = "mark_as_run_button">Mark Selection as Run</button>
+           run date: <input id = "run_date" type = "date">
+       </div>
+    </div>
+
+</div>
+
+<table class = "table_cont" id = "met_list" data-state="loading_data">
+    <tr class = "header_row">
+         <th></th>
+         <th>date submitted</th>
+         <th>lab</th>
+         <th>submitter</th>
+         <th>name</th>
+         <th>formula</th>
+         <th>pubchem_id</th>
+         <th>kegg_id</th>
+         <th>status</th>
+    </tr>
+</table>
+
+    <div id = "new_met_form">
+        <div><h3>Add New Metabolite Standard</h3></div>
+        <div class ="error_console"></div>
+    	<div><label>Lab name:</label><input id = "labname_input" type = "text" placeholder="Christofk" maxlength="99"></div>
+    	<div><label>Experimentor name:</label><input id = "sub_name_input" type = "text" placeholder="Jane Student" maxlength="99"></div>
+        <div><label>Metabolite name:</label><input id = "metabolite_input" placeholder = 'D-Glucose'></div>
+        <div><label>Formula:</label><input id = "formula_input" placeholder = 'C6H12O6'></div>
+        <div><label>Pubchem ID:</label><input id = "pubchem_id_input" placeholder = '5793'></div>
+        <div><label>Kegg ID:</label><input id = "kegg_id_input" placeholder = 'C00031'></div>
+
+        <div id = "disclaimer">By pressing submit, I certify that I understand that these samples will likely, but not necessarily, be run in the order that they were submitted to this queue. I also affirm that all the information entered on this form is accurate. Once added, sample sets can only be deleted. No editing is permitted.</div>
+        <div style="text-align: center"><button id = "cancel_button" style = "
+			margin-right: 100px;">CANCEL</button><button id = "submit_button">SUBMIT</button></div>
+    </div>
+
+    <div id = "status_bar"></div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+
+        const SERVER_URL = 'met_add_handler.php';
+		const STATUS_BAR = $('#status_bar');
+
+        function FLASH_STATUS_BAR(status, message){
+
+			if(status == 'error'){
+
+				STATUS_BAR.removeClass("success");
+				STATUS_BAR.addClass("error");
+			}
+			else if(status == 'success'){
+
+				STATUS_BAR.removeClass("error");
+				STATUS_BAR.addClass("success");
+			}
+
+			STATUS_BAR.addClass("show");
+			STATUS_BAR.html(message);
+
+			setTimeout(function(){ STATUS_BAR.removeClass("show"); }, 2000);
+		}
+
+        function GET_EDIT_KEY() {
+            var e_key = localStorage.getItem("edit_key");
+            return e_key || "none";
+        }
+        
+
+		function SET_EDIT_KEY(key){
+
+			localStorage.setItem("edit_key", key);
+		}
+        
+
+        // Call this function when the document is ready
+        $(document).ready(function() {
+            setupEventHandlers();
+            fetchAndDisplayMetabolites();
+        });
+
+
+        
+        function setupEventHandlers() {
+            $('#add_new_mets_button').on('click', function() {
+                // Show form as modal
+                showForm();
+            });
+        
+            $('#cancel_button').on('click', function(event) {
+                event.preventDefault(); // Prevent form submission on cancel
+                // Hide modal form
+                hideForm();
+            });
+        
+            // Submitting the new metabolite
+            $('#submit_button').on('click', function(event) {
+                event.preventDefault(); // Prevent form submission
+                // Implement submission logic here
+                submitNewMetabolite();
+            });
+
+            // Handler for marking metabolites as run
+            $('#mark_as_run_button').on('click', function() {
+                markSelectedMetabolitesAsRun();
+            });
+        }
+        
+        
+        function showForm() {
+            $('body').addClass('overlay'); // Add overlay class to body
+            $('#new_met_form').css('display', 'block'); // Directly set display to block
+        }
+        
+        function hideForm() {
+            $('body').removeClass('overlay'); // Remove overlay class from body
+            $('#new_met_form').css('display', 'none'); // Directly set display to none
+        }
+        
+        function submitNewMetabolite() {
+            var isValid = true;
+            $('#new_met_form input, #new_met_form textarea').each(function() {
+                if ($(this).val().trim() === '') {
+                    $(this).addClass('error');
+                    isValid = false;
+                } else {
+                    $(this).removeClass('error');
+                }
+            });
+        
+            if (!isValid) {
+                $('.error_console').text('Please fill in all required fields.');
+                return;
+            }
+        
+            // Construct form data for submission
+            var formData = {
+                'action': 'addnewmetabolite', // This must be included to match your PHP action handling
+                'edit_key': GET_EDIT_KEY(), // Assuming you have a mechanism for retrieving the edit key
+                'lab_name': $('#labname_input').val(),
+                'submitter_name': $('#sub_name_input').val(),
+                'metabolite_name': $('#metabolite_input').val(),
+                'formula': $('#formula_input').val(),
+                'pubchem_id': $('#pubchem_id_input').val(),
+                'kegg_id': $('#kegg_id_input').val(),
+                // Add more fields as necessary
+            };
+        
+            // AJAX call to server with formData
+            $.ajax({
+                url: SERVER_URL,
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Handle success
+                    FLASH_STATUS_BAR('success', 'Metabolite successfully added.');
+                    hideForm();
+                    fetchAndDisplayMetabolites(); // Refresh the metabolite list
+                },
+                error: function() {
+                    // Handle error
+                    FLASH_STATUS_BAR('error', 'An error occurred. Please try again.');
+                }
+            });
+        }
+
+
+        function fetchAndDisplayMetabolites() {
+            $('#met_list').append('<tr class="loading"><td colspan="9">Loading metabolites...</td></tr>');
+            $.ajax({
+                url: SERVER_URL,
+                type: 'POST',
+                data: {
+                    'action': 'getmetabolites',
+                    'edit_key': GET_EDIT_KEY()
+                },
+                success: function(response) {
+                    $('#met_list .loading').remove();
+                    if (response.success) {
+                        $('#met_list .content').remove();
+                        response.data.forEach(function(metabolite) {
+                            var rowHtml = '<tr class="content">' +
+                                (metabolite.editable ? '<td><input type="checkbox"></td>' : '<td></td>') +
+                                '<td>' + metabolite.date_added + '</td>' +
+                                '<td>' + metabolite.submitter_lab + '</td>' +
+                                '<td>' + metabolite.submitter_name + '</td>' +
+                                '<td>' + metabolite.name + '</td>' +
+                                '<td>' + metabolite.formula + '</td>' +
+                                '<td>' + metabolite.pubchem_id + '</td>' +
+                                '<td>' + metabolite.kegg_id + '</td>' +
+                                '<td>' + metabolite.status + '</td>' +
+                                '</tr>';
+                            $('#met_list').append(rowHtml);
+                        });
+                        if (response.data.length > 0 && response.data[0].editable) {
+                            $('#run_section').show();
+                        }
+                    } else {
+                        $('#met_list').append('<tr class="error"><td colspan="9">Failed to fetch metabolites: ' + response.info + '</td></tr>');
+                    }
+                },
+                error: function() {
+                    $('#met_list .loading').remove();
+                    $('#met_list').append('<tr class="error"><td colspan="9">An error occurred while fetching metabolites.</td></tr>');
+                    FLASH_STATUS_BAR('error', 'An error occurred while fetching metabolites.');
+                }
+            });
+        }
+
+
+        function markSelectedMetabolitesAsRun() {
+            var selectedMetabolites = [];
+            $('#met_list tr.content').each(function() {
+                var $checkbox = $(this).find('input[type="checkbox"]:checked');
+                if ($checkbox.length) {
+                    var metaboliteId = $(this).data('metabolite-id'); // Get the metabolite ID from the data attribute
+                    selectedMetabolites.push(metaboliteId); // Add the ID to the array
+                }
+            });
+
+            var runDate = $('#run_date').val(); // Get the selected run date
+
+            if (selectedMetabolites.length === 0 || !runDate) {
+                FLASH_STATUS_BAR('error', 'No metabolites selected or run date not set.');
+                return;
+            }
+
+            // Prepare the data to be sent to the server
+            var dataToSend = {
+                action: 'setrundatesforsamplesets',
+                edit_key: GET_EDIT_KEY(),
+                data: JSON.stringify(selectedMetabolites.map(id => ({id: id, date_run: runDate})))
+            };
+
+            // AJAX call to server with dataToSend
+           $.ajax({
+                url: SERVER_URL,
+                type: 'POST',
+                data: {
+                    action: 'setrundatesforsamplesets',
+                    edit_key: GET_EDIT_KEY(),
+                    data: JSON.stringify(selectedMetabolites.map(id => ({id: id, date_run: runDate})))
+                },
+                success: function(response) {
+                    if (response.success) {
+                        FLASH_STATUS_BAR('success', 'Selected metabolites marked as run.');
+                        fetchAndDisplayMetabolites(); // Refresh the list to reflect changes
+                    } else {
+                        FLASH_STATUS_BAR('error', 'Failed to mark metabolites as run: ' + response.info);
+                    }
+                },
+                error: function() {
+                    FLASH_STATUS_BAR('error', 'An error occurred. Please try again.');
+                }
+            });
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>

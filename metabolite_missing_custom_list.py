@@ -3,8 +3,11 @@ import numpy as np
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox, filedialog, simpledialog
+from tkinter.filedialog import askopenfilename
 from pandastable import Table
 import re
+import mysql.connector
+from mysql.connector import Error
 
 path_custom_list_neg = "C:\\Users\\nmatulionis\\Desktop\\ms1_rt_database_lists\\custom_list_neg.csv"
 path_custom_list_pos = "C:\\Users\\nmatulionis\\Desktop\\ms1_rt_database_lists\\custom_list_pos.csv"
@@ -60,6 +63,7 @@ class MetaboliteApp:
 
         self.setup_missing_mets_ui()
         self.setup_metabolomics_conversion_ui()
+        self.setup_rt_management_ui()
 
 
     def setup_missing_mets_ui(self):
@@ -172,11 +176,11 @@ class MetaboliteApp:
         self.listbox_neg.config(state='disabled')
         self.listbox_pos.config(state='disabled')
         
-        root.bind('<BackSpace>', self.on_key_press)
-        root.bind('<z>', self.on_key_press)
+        self.root.bind('<BackSpace>', self.on_key_press)
+        self.root.bind('<z>', self.on_key_press)
         for i in range(10):
-            root.bind(f'<Key-{i}>', self.on_number_press)
-        root.bind("`", self.on_number_press)
+            self.root.bind(f'<Key-{i}>', self.on_number_press)
+        self.root.bind("`", self.on_number_press)
             
 
         self.listbox_neg.bind('<Double-Button-1>', self.on_double_click)
@@ -322,10 +326,11 @@ class MetaboliteApp:
     def is_csv_file(self, filename):
         return filename.endswith('.csv')
         
-        
     def write_to_terminal(self, message):
-        self.terminal.insert(tk.END, message + '\n')
-        self.terminal.see(tk.END)  # Scroll to the end to see latest message
+        def _write():
+            self.terminal.insert(tk.END, message + '\n')
+            self.terminal.see(tk.END)
+        self.root.after(0, _write)
         
     def on_number_press(self, event):
         if event.char.isdigit():
@@ -1088,6 +1093,68 @@ class MetaboliteApp:
         except Exception as e:
             self.write_to_terminal(f"Error checking sheets in file {file_path}: {e}")
             return False
+        
+        
+    def setup_rt_management_ui(self):
+        # Create RT Management tab
+        self.tab_rt_management = ttk.Frame(self.notebook)
+        self.notebook.add(self.tab_rt_management, text='RT Management')
+
+        # Button to update all RTs from a CSV file
+        update_all_rts_button = tk.Button(self.tab_rt_management, text="Update All RTs", command=self.update_all_rts)
+        update_all_rts_button.pack(pady=10)
+
+        # Attempt to fetch metabolite names from the database
+        try:
+            database = DatabaseObj(self.write_to_terminal)  # Assuming write_to_terminal is a method for logging
+            metabolite_names = database.get_db_name_list()
+            database.disconnect()  # Ensure to close the database connection
+        except Exception as e:
+            self.write_to_terminal(f"Failed to fetch metabolite names: {str(e)}")
+            metabolite_names = []  # Default to an empty list in case of error
+
+        # Combobox for selecting a metabolite
+        self.metabolite_combobox = ttk.Combobox(self.tab_rt_management, values=metabolite_names, width=50)
+        self.metabolite_combobox.pack(pady=10)
+
+        # Entry for new RT value
+        self.new_rt_value_entry = tk.Entry(self.tab_rt_management, width=10)
+        self.new_rt_value_entry.pack(pady=10)
+
+        # Button to update the RT for the selected metabolite
+        update_single_rt_button = tk.Button(self.tab_rt_management, text="Update Single RT", command=self.update_single_rt)
+        update_single_rt_button.pack(pady=10)
+
+        
+        
+    def update_all_rts(self):
+        # This method is triggered by a UI button for updating all RTs
+        database = DatabaseObj(self.write_to_terminal)
+        try:
+            database.update_all_rts()
+        finally:
+            database.disconnect()
+            
+            
+    def update_single_rt(self):
+        # This method is triggered by a UI button for updating a single RT
+        met_name = self.metabolite_combobox.get()
+        rt = self.new_rt_value_entry.get()
+        if not met_name or not rt:
+            self.write_to_terminal("Metabolite name or RT value is missing.")
+            return
+        try:
+            rt = float(rt)
+        except ValueError:
+            self.write_to_terminal("Invalid RT value. Please enter a numeric value.")
+            return
+
+        database = DatabaseObj(self.write_to_terminal)
+        try:
+            database.update_single_rt(met_name, rt)
+            self.write_to_terminal(f"{met_name} RT updated to {rt}.")
+        finally:
+            database.disconnect()
     
 
 class CustomSpinbox:
@@ -1140,6 +1207,85 @@ class CustomSpinbox:
             self.value.set(value)
         else:
             self.value.set(self.from_)
+
+
+class DatabaseObj:
+    def __init__(self, write_to_terminal):
+        self.write_to_terminal = write_to_terminal
+        # Establish connection to the lab's database
+        self.connection = mysql.connector.connect(
+            host="192.185.39.245",
+            database="christof_labdata",
+            user="christof_python",
+            password="PythonIsTheBest"
+        )
+
+        if self.connection.is_connected():
+            self.db_info = self.connection.get_server_info()
+            self.write_to_terminal("Connected to MySQL Server version " + self.db_info)
+            self.cursor = self.connection.cursor()
+            self.cursor.execute('SET interactive_timeout = 900')
+            self.cursor.execute("SELECT name, rt FROM zic_philic_master_ms1_rt_table ORDER BY name ASC")
+            self.db_name_rt_tuple = self.cursor.fetchall()
+            self.db_df = pd.DataFrame(self.db_name_rt_tuple, columns=["name", "rt"]).astype({"name": str})
+
+    def get_db_name_list(self):
+        list_str = self.db_df["name"].values.tolist()
+        return list_str
+
+    def update_all_rts(self):
+        # Read metabolite standard CSV file with names and rts
+        fpath = askopenfilename()
+        std_df = pd.read_csv(fpath, encoding='ISO-8859-1')
+        std_df = std_df.rename(columns={'row identity (main ID)': 'name'})
+        std_df.drop_duplicates(subset="name", keep=False, inplace=True)
+        std_df.dropna(axis="columns", inplace=True)
+        std_df['name'] = std_df['name'].map(lambda x: x.rstrip(' M0'))
+        std_df = std_df[~std_df['name'].isin(['row identity (main ID)'])]
+        std_df = std_df.reset_index(drop=True)
+        std_df["rt_mean"] = 0.0
+
+        for row in range(len(std_df)):
+            row_sum = 0.0
+            num_samples_in_mean = 0.0
+            for col in range(1, len(std_df.columns) - 1):
+                if std_df.iloc[row, col] != 0:
+                    row_sum += float(std_df.iloc[row, col])
+                    num_samples_in_mean += 1
+
+            mean = row_sum / num_samples_in_mean if num_samples_in_mean else 0
+            std_df.at[row, 'rt_mean'] = mean
+
+        std_df = std_df.round({'rt_mean': 2})
+        self.write_to_terminal("Std rts successfully averaged.")
+        self.missing_met_list = [x for x in list(self.db_df['name'].unique()) if x not in list(std_df['name'].unique())]
+        query = "UPDATE zic_philic_master_ms1_rt_table SET rt = %s WHERE name = %s;"
+
+        for index, row in std_df.iterrows():
+            met_name = row["name"]
+            rt = row["rt_mean"]
+            data = (float(rt), met_name)
+            if met_name in self.db_df['name'].values:
+                self.cursor.execute(query, data)
+                self.connection.commit()
+                self.write_to_terminal(f"Updated {met_name} to {rt}.")
+            else:
+                self.write_to_terminal(f"Could not update {met_name}.")
+
+        self.write_to_terminal("Missing metabolites: " + ", ".join(self.missing_met_list))
+
+    def update_single_rt(self, met_name, rt):
+        query = "UPDATE zic_philic_master_ms1_rt_table SET rt = %s WHERE name = %s;"
+        data = (rt, met_name)
+        self.cursor.execute(query, data)
+        self.connection.commit()
+        self.write_to_terminal(f"Updated {met_name} to {rt}.")
+
+    def disconnect(self):
+        if self.connection.is_connected():
+            self.cursor.close()
+            self.connection.close()
+            self.write_to_terminal("Database connection closed.")
 
 
 
