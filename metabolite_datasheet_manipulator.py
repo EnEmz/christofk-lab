@@ -1096,34 +1096,40 @@ class MetaboliteApp:
         
         
     def setup_rt_management_ui(self):
-        # Create RT Management tab
         self.tab_rt_management = ttk.Frame(self.notebook)
         self.notebook.add(self.tab_rt_management, text='RT Management')
+        self.tab_rt_management.grid_columnconfigure(1, weight=1)  # This gives the second column more space
 
+        # Fetch metabolite names from the database
+        database = DatabaseObj(self.write_to_terminal)
+        metabolite_names = database.get_db_name_list()
+        database.disconnect()
+        
         # Button to update all RTs from a CSV file
         update_all_rts_button = tk.Button(self.tab_rt_management, text="Update All RTs", command=self.update_all_rts)
-        update_all_rts_button.pack(pady=10)
+        update_all_rts_button.grid(row=0, column=0, pady=30, padx=30)
+        
+        # Separator
+        separator = ttk.Separator(self.tab_rt_management, orient='horizontal')
+        separator.grid(row=1, column=0, columnspan=2, sticky='ew', padx=10, pady=20)
 
-        # Attempt to fetch metabolite names from the database
-        try:
-            database = DatabaseObj(self.write_to_terminal)  # Assuming write_to_terminal is a method for logging
-            metabolite_names = database.get_db_name_list()
-            database.disconnect()  # Ensure to close the database connection
-        except Exception as e:
-            self.write_to_terminal(f"Failed to fetch metabolite names: {str(e)}")
-            metabolite_names = []  # Default to an empty list in case of error
-
-        # Combobox for selecting a metabolite
-        self.metabolite_combobox = ttk.Combobox(self.tab_rt_management, values=metabolite_names, width=50)
-        self.metabolite_combobox.pack(pady=10)
+        # Autocomplete Combobox for metabolite names
+        self.metabolite_name_entry = AutocompleteEntry(
+            autocomplete_list=metabolite_names,
+            master=self.tab_rt_management,
+            width=50
+        )
+        self.metabolite_name_entry.grid(row=2, column=1, columnspan=2, pady=10, padx=10, sticky='ew')
 
         # Entry for new RT value
         self.new_rt_value_entry = tk.Entry(self.tab_rt_management, width=10)
-        self.new_rt_value_entry.pack(pady=10)
+        self.new_rt_value_entry.grid(row=3, column=1, pady=10, padx=10)
 
         # Button to update the RT for the selected metabolite
         update_single_rt_button = tk.Button(self.tab_rt_management, text="Update Single RT", command=self.update_single_rt)
-        update_single_rt_button.pack(pady=10)
+        update_single_rt_button.grid(row=4, column=1, pady=10, padx=10)
+
+
 
         
         
@@ -1138,7 +1144,7 @@ class MetaboliteApp:
             
     def update_single_rt(self):
         # This method is triggered by a UI button for updating a single RT
-        met_name = self.metabolite_combobox.get()
+        met_name = self.metabolite_name_entry.get()
         rt = self.new_rt_value_entry.get()
         if not met_name or not rt:
             self.write_to_terminal("Metabolite name or RT value is missing.")
@@ -1152,7 +1158,6 @@ class MetaboliteApp:
         database = DatabaseObj(self.write_to_terminal)
         try:
             database.update_single_rt(met_name, rt)
-            self.write_to_terminal(f"{met_name} RT updated to {rt}.")
         finally:
             database.disconnect()
     
@@ -1236,12 +1241,25 @@ class DatabaseObj:
     def update_all_rts(self):
         # Read metabolite standard CSV file with names and rts
         fpath = askopenfilename()
-        std_df = pd.read_csv(fpath, encoding='ISO-8859-1')
+        std_df = pd.read_csv(fpath, encoding='ISO-8859-1')        
         std_df = std_df.rename(columns={'row identity (main ID)': 'name'})
         std_df.drop_duplicates(subset="name", keep=False, inplace=True)
         std_df.dropna(axis="columns", inplace=True)
         std_df['name'] = std_df['name'].map(lambda x: x.rstrip(' M0'))
         std_df = std_df[~std_df['name'].isin(['row identity (main ID)'])]
+        
+        # Preprocess to handle ' / ' in names
+        new_rows = []
+        for index, row in std_df.iterrows():
+            if ' / ' in row['row identity (main ID)']:
+                parts = row['row identity (main ID)'].split(' / ')
+                for part in parts:
+                    new_row = row.copy()
+                    new_row['row identity (main ID)'] = part
+                    new_rows.append(new_row)
+            else:
+                new_rows.append(row)
+        
         std_df = std_df.reset_index(drop=True)
         std_df["rt_mean"] = 0.0
 
@@ -1279,14 +1297,121 @@ class DatabaseObj:
         data = (rt, met_name)
         self.cursor.execute(query, data)
         self.connection.commit()
-        self.write_to_terminal(f"Updated {met_name} to {rt}.")
+        self.write_to_terminal(f"{met_name} RT updated to {rt}")
 
     def disconnect(self):
         if self.connection.is_connected():
             self.cursor.close()
             self.connection.close()
-            self.write_to_terminal("Database connection closed.")
 
+
+class AutocompleteEntry(tk.Entry):
+    def __init__(self, autocomplete_list, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.autocomplete_list = autocomplete_list
+        self.listbox = None
+        self.bind('<KeyRelease>', self.on_keyrelease)
+        self.bind('<FocusOut>', self.on_focus_out)
+        self.var = tk.StringVar()
+        self.configure(textvariable=self.var)
+
+    def on_keyrelease(self, event):
+        # Check for a special key (arrow keys, enter, return, tab)
+        if event.keysym in ('Down', 'Up', 'Enter', 'Return', 'Tab'):
+            if event.keysym == 'Return' or event.keysym == 'Enter':
+                self.select_from_listbox_with_enter()
+            elif event.keysym == 'Down':
+                self.move_selection("down")
+            elif event.keysym == 'Up':
+                self.move_selection("up")
+            # Return early since we do not want to process other key events below
+            return
+        elif event.keysym == 'BackSpace':
+            self.handle_backspace()
+        else:
+            self.update_listbox()
+                
+    def handle_backspace(self):
+        if self.var.get() == '':
+            self.hide_listbox()
+        else:
+            self.update_listbox()
+
+    def move_selection(self, direction):
+        if self.listbox:
+            current_selection = self.listbox.curselection()
+            if not current_selection:  # No current selection
+                if direction == 'down':  # Pressing down with no selection will select the first item
+                    self.listbox.selection_set(0)
+                elif direction == 'up':  # Pressing up with no selection will select the last item
+                    self.listbox.selection_set(self.listbox.size() - 1)
+            else:
+                current_index = current_selection[0]
+                self.listbox.selection_clear(current_selection)
+                if direction == 'down':
+                    next_index = min(current_index + 1, self.listbox.size() - 1)
+                else:  # direction == 'up'
+                    next_index = max(current_index - 1, 0)
+                self.listbox.selection_set(next_index)
+                self.listbox.activate(next_index)  # Optionally, to highlight the item
+                self.listbox.see(next_index)  # Ensure the new selection is visible
+                
+    def select_from_listbox_with_enter(self):
+        if self.listbox:
+            self.var.set(self.listbox.get(tk.ACTIVE))
+            self.icursor(tk.END)
+            self.hide_listbox()
+                
+    def update_listbox(self):
+        # Logic to update listbox based on entry content
+        typed = self.var.get().lower()
+        if typed == '':
+            self.hide_listbox()
+        else:
+            if not self.listbox:
+                self.create_listbox()
+            self.listbox.delete(0, tk.END)
+            for word in self.autocomplete_list:
+                if word.lower().startswith(typed):
+                    self.listbox.insert(tk.END, word)
+            self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+                
+    def position_listbox(self):
+        if self.listbox:
+            self.listbox.place(x=self.winfo_x(), y=self.winfo_y() + self.winfo_height())
+
+    def create_listbox(self):
+        self.listbox = tk.Listbox(self.winfo_toplevel(), width=self["width"], height=7)
+        self.listbox.bind('<<ListboxSelect>>', self.on_listbox_select)
+        self.listbox.bind('<Double-Button-1>', self.on_listbox_click)
+        self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.position_listbox()
+
+    def on_listbox_select(self, event):
+        if not self.listbox.curselection():
+            return
+
+        self.var.set(self.listbox.get(self.listbox.curselection()))
+        self.icursor(tk.END)
+        self.listbox.destroy()
+        self.listbox = None
+        self.focus_set()
+        
+    def hide_listbox(self):
+        if self.listbox:
+            self.listbox.destroy()
+            self.listbox = None
+        
+    def on_listbox_click(self, event):
+        if self.listbox:
+            self.var.set(self.listbox.get(tk.ACTIVE))
+            self.icursor(tk.END)
+            self.hide_listbox()
+
+    def on_focus_out(self, event):
+        if self.listbox:
+            self.listbox.destroy()
+            self.listbox = None
 
 
 # Running the Application
