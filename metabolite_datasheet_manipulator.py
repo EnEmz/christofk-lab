@@ -1099,6 +1099,7 @@ class MetaboliteApp:
         self.tab_rt_management = ttk.Frame(self.notebook)
         self.notebook.add(self.tab_rt_management, text='RT Management')
         self.tab_rt_management.grid_columnconfigure(1, weight=1)  # This gives the second column more space
+        #self.tab_rt_management.grid_rowconfigure(0, weight=1)
 
         # Fetch metabolite names from the database
         database = DatabaseObj(self.write_to_terminal)
@@ -1107,32 +1108,38 @@ class MetaboliteApp:
         
         # Button to update all RTs from a CSV file
         update_all_rts_button = tk.Button(self.tab_rt_management, text="Update All RTs", command=self.update_all_rts)
-        update_all_rts_button.grid(row=0, column=0, pady=30, padx=30)
+        update_all_rts_button.grid(row=0, column=0, columnspan=2, pady=10, padx=10)
         
         # Separator
         separator = ttk.Separator(self.tab_rt_management, orient='horizontal')
-        separator.grid(row=1, column=0, columnspan=2, sticky='ew', padx=10, pady=20)
-
-        # Autocomplete Combobox for metabolite names
-        self.metabolite_name_entry = AutocompleteEntry(
-            autocomplete_list=metabolite_names,
-            master=self.tab_rt_management,
-            width=50
-        )
-        self.metabolite_name_entry.grid(row=2, column=1, columnspan=2, pady=10, padx=10, sticky='ew')
+        separator.grid(row=1, column=0, columnspan=2, sticky='ew', padx=10, pady=10)
 
         # Entry for new RT value
         self.new_rt_value_entry = tk.Entry(self.tab_rt_management, width=10)
-        self.new_rt_value_entry.grid(row=3, column=1, pady=10, padx=10)
+        self.new_rt_value_entry.grid(row=3, column=0, columnspan=2, pady=10, padx=10)
 
         # Button to update the RT for the selected metabolite
         update_single_rt_button = tk.Button(self.tab_rt_management, text="Update Single RT", command=self.update_single_rt)
-        update_single_rt_button.grid(row=4, column=1, pady=10, padx=10)
-
-
-
+        update_single_rt_button.grid(row=4, column=0, columnspan=2, pady=10, padx=10)
         
+        # Place the Listbox for autocomplete suggestions
+        self.suggestion_listbox = tk.Listbox(self.tab_rt_management, width=50, height=7)
+        self.suggestion_listbox.grid(row=5, column=0, columnspan=2, sticky='ew')
         
+        # Autocomplete Combobox for metabolite names
+        self.metabolite_name_entry = AutocompleteEntry(
+            autocomplete_list=metabolite_names,
+            listbox=self.suggestion_listbox,
+            master=self.tab_rt_management,
+            width=50
+        )
+        self.metabolite_name_entry.grid(row=2, column=0, columnspan=2, pady=10, padx=40, sticky='ew')
+        
+        # Separator
+        separator = ttk.Separator(self.tab_rt_management, orient='horizontal')
+        separator.grid(row=7, column=0, columnspan=2, sticky='ew', padx=10, pady=10)
+
+
     def update_all_rts(self):
         # This method is triggered by a UI button for updating all RTs
         database = DatabaseObj(self.write_to_terminal)
@@ -1306,15 +1313,23 @@ class DatabaseObj:
 
 
 class AutocompleteEntry(tk.Entry):
-    def __init__(self, autocomplete_list, *args, **kwargs):
+    def __init__(self, autocomplete_list, listbox, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.autocomplete_list = autocomplete_list
-        self.listbox = None
-        self.bind('<KeyRelease>', self.on_keyrelease)
-        self.bind('<FocusOut>', self.on_focus_out)
+        self.listbox = listbox
         self.var = tk.StringVar()
         self.configure(textvariable=self.var)
-
+        self.bind('<KeyRelease>', self.on_keyrelease)
+        self.bind('<FocusOut>', self.on_focus_out)
+        self.setup_listbox()  # Setup listbox appearance or events if needed
+        
+    def setup_listbox(self):
+        self.listbox.bind('<<ListboxSelect>>', self.on_listbox_select)
+        self.listbox.bind('<Button-1>', self.on_listbox_click)  # Bind single click
+        self.listbox.bind('<Double-Button-1>', self.on_listbox_double_click)  # Bind double click
+        if not self.listbox.winfo_ismapped():
+            self.listbox.grid(row=6, column=0, columnspan=2, sticky='ew')
+            
     def on_keyrelease(self, event):
         # Check for a special key (arrow keys, enter, return, tab)
         if event.keysym in ('Down', 'Up', 'Enter', 'Return', 'Tab'):
@@ -1333,9 +1348,13 @@ class AutocompleteEntry(tk.Entry):
                 
     def handle_backspace(self):
         if self.var.get() == '':
-            self.hide_listbox()
+            self.clear_listbox()
         else:
             self.update_listbox()
+            
+    def clear_listbox(self):
+        if self.listbox is not None:
+            self.listbox.delete(0, tk.END)
 
     def move_selection(self, direction):
         if self.listbox:
@@ -1357,61 +1376,41 @@ class AutocompleteEntry(tk.Entry):
                 self.listbox.see(next_index)  # Ensure the new selection is visible
                 
     def select_from_listbox_with_enter(self):
-        if self.listbox:
-            self.var.set(self.listbox.get(tk.ACTIVE))
+        if self.listbox.curselection():
+            self.var.set(self.listbox.get(self.listbox.curselection()))
             self.icursor(tk.END)
-            self.hide_listbox()
+            self.clear_listbox()
                 
     def update_listbox(self):
-        # Logic to update listbox based on entry content
         typed = self.var.get().lower()
         if typed == '':
-            self.hide_listbox()
+            self.clear_listbox()
         else:
-            if not self.listbox:
-                self.create_listbox()
             self.listbox.delete(0, tk.END)
             for word in self.autocomplete_list:
                 if word.lower().startswith(typed):
                     self.listbox.insert(tk.END, word)
-            self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-                
-    def position_listbox(self):
-        if self.listbox:
-            self.listbox.place(x=self.winfo_x(), y=self.winfo_y() + self.winfo_height())
-
-    def create_listbox(self):
-        self.listbox = tk.Listbox(self.winfo_toplevel(), width=self["width"], height=7)
-        self.listbox.bind('<<ListboxSelect>>', self.on_listbox_select)
-        self.listbox.bind('<Double-Button-1>', self.on_listbox_click)
-        self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self.position_listbox()
 
     def on_listbox_select(self, event):
-        if not self.listbox.curselection():
-            return
-
-        self.var.set(self.listbox.get(self.listbox.curselection()))
-        self.icursor(tk.END)
-        self.listbox.destroy()
-        self.listbox = None
-        self.focus_set()
-        
-    def hide_listbox(self):
-        if self.listbox:
-            self.listbox.destroy()
-            self.listbox = None
-        
-    def on_listbox_click(self, event):
-        if self.listbox:
-            self.var.set(self.listbox.get(tk.ACTIVE))
+        if self.listbox.curselection():
+            self.var.set(self.listbox.get(self.listbox.curselection()))
             self.icursor(tk.END)
-            self.hide_listbox()
+
+    def on_listbox_click(self, event):
+        # Handles the single click, which selects the item
+        index = self.listbox.nearest(event.y)
+        self.listbox.selection_clear(0, tk.END)
+        self.listbox.selection_set(index)
+        self.listbox.activate(index)
+        self.on_listbox_select(None)  # Update the entry field
+        
+    def on_listbox_double_click(self, event):
+        # Handles the double click, which can be used to finalize the selection
+        self.select_from_listbox_with_enter()
 
     def on_focus_out(self, event):
-        if self.listbox:
-            self.listbox.destroy()
-            self.listbox = None
+        # Optionally hide the listbox when focus is lost
+        self.clear_listbox()
 
 
 # Running the Application
