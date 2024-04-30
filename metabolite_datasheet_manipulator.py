@@ -1258,11 +1258,11 @@ class DatabaseObj:
         # Preprocess to handle ' / ' in names
         new_rows = []
         for index, row in std_df.iterrows():
-            if ' / ' in row['row identity (main ID)']:
-                parts = row['row identity (main ID)'].split(' / ')
+            if ' / ' in row['name']:
+                parts = row['name'].split(' / ')
                 for part in parts:
                     new_row = row.copy()
-                    new_row['row identity (main ID)'] = part
+                    new_row['name'] = part
                     new_rows.append(new_row)
             else:
                 new_rows.append(row)
@@ -1297,7 +1297,7 @@ class DatabaseObj:
             else:
                 self.write_to_terminal(f"Could not update {met_name}.")
 
-        self.write_to_terminal("Missing metabolites: " + ", ".join(self.missing_met_list))
+        self.write_to_terminal("Missing metabolites: \n" + "[" + ", ".join(self.missing_met_list) + "]")
 
     def update_single_rt(self, met_name, rt):
         query = "UPDATE zic_philic_master_ms1_rt_table SET rt = %s WHERE name = %s;"
