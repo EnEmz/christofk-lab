@@ -1224,6 +1224,7 @@ class CustomSpinbox:
 class DatabaseObj:
     def __init__(self, write_to_terminal):
         self.write_to_terminal = write_to_terminal
+        self.first_connection = True
         # Establish connection to the lab's database
         self.connection = mysql.connector.connect(
             host="192.185.39.245",
@@ -1233,8 +1234,11 @@ class DatabaseObj:
         )
 
         if self.connection.is_connected():
-            self.db_info = self.connection.get_server_info()
-            self.write_to_terminal("Connected to MySQL Server version " + self.db_info)
+            if self.first_connection:  # Check if it's the first connection
+                self.db_info = self.connection.get_server_info()
+                self.write_to_terminal("Connected to MySQL Server version " + self.db_info)
+                self.first_connection = False  # Update the flag after the first successful connection
+
             self.cursor = self.connection.cursor()
             self.cursor.execute('SET interactive_timeout = 900')
             self.cursor.execute("SELECT name, rt FROM zic_philic_master_ms1_rt_table ORDER BY name ASC")
