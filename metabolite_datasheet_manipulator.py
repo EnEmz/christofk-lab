@@ -9,6 +9,7 @@ import re
 import mysql.connector
 from mysql.connector import Error
 
+# Global filepaths for mass and RT lists
 path_custom_list_neg = "C:\\Users\\nmatulionis\\Desktop\\ms1_rt_database_lists\\custom_list_neg.csv"
 path_custom_list_pos = "C:\\Users\\nmatulionis\\Desktop\\ms1_rt_database_lists\\custom_list_pos.csv"
 
@@ -85,13 +86,17 @@ class MetaboliteApp:
         self.file_path_entry = tk.Entry(file_path_frame)
         self.file_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
+        # Paste all metabolites to listboxes button
+        self.button_paste_all = tk.Button(file_path_frame, text="Paste All Mets", command=self.paste_all_mets)
+        self.button_paste_all.pack(side=tk.RIGHT, padx=5)
+
         # Load button
         load_button = tk.Button(file_path_frame, text="Upload Analysis File", command=self.load_file)
         load_button.pack(side=tk.RIGHT, padx=5)
-
+        
         # Path configuration frame
         self.path_display_frame = tk.LabelFrame(self.tab_missing_mets_detection, text="Current File Paths")
-        self.path_display_frame.grid(row=4, column=0, columnspan=4, sticky='ew', padx=5, pady=5)
+        self.path_display_frame.grid(row=4, column=0, columnspan=2, sticky='ew', padx=5, pady=5)
         self.path_display_frame.grid_columnconfigure(1, weight=1)
 
         # Filepath display for csv files
@@ -166,9 +171,7 @@ class MetaboliteApp:
 
         # Save and quit buttons
         self.button_save = tk.Button(self.tab_missing_mets_detection, text="Save Data", command=self.save_data)
-        self.button_save.grid(row=2, column=0, columnspan=1, sticky='ew', padx=5, pady=5)
-        button_quit = tk.Button(self.tab_missing_mets_detection, text="Quit", command=root.destroy)
-        button_quit.grid(row=3, column=0, columnspan=1, sticky='ew', padx=5, pady=5)
+        self.button_save.grid(row=3, column=0, columnspan=1, sticky='ew', padx=5, pady=5)
 
         self.button_del_neg.config(state='disabled')
         self.button_del_pos.config(state='disabled')
@@ -491,7 +494,6 @@ class MetaboliteApp:
         self.filtered_df_pos = self.filtered_df_pos.reset_index(drop=True)
 
         
-        
     def update_listboxes(self):
         padding = " " * 3
 
@@ -710,6 +712,35 @@ class MetaboliteApp:
         else:
             self.root.destroy()
 
+    def paste_all_mets(self):
+        # Clear existing entries from listboxes
+        self.listbox_neg.delete(0, tk.END)
+        self.listbox_pos.delete(0, tk.END)
+        self.listbox_rt_neg.delete(0, tk.END)
+        self.listbox_rt_pos.delete(0, tk.END)
+
+        self.df_met_neg['simple_name'] = self.df_met_neg['name'].str.split(' M').str[0]
+        self.df_met_pos['simple_name'] = self.df_met_pos['name'].str.split(' M').str[0]
+        
+        self.filtered_df_neg = self.df_met_neg
+        self.filtered_df_pos = self.df_met_pos
+        
+        self.filtered_df_neg = self.filtered_df_neg.reset_index(drop=True)
+        self.filtered_df_pos = self.filtered_df_pos.reset_index(drop=True)
+
+        # Enable interaction with listboxes if previously disabled
+        self.listbox_neg.config(state='normal')
+        self.listbox_rt_neg.config(state='normal')
+        self.listbox_pos.config(state='normal')
+        self.listbox_rt_pos.config(state='normal')
+        self.button_del_neg.config(state='normal')
+        self.button_del_pos.config(state='normal')
+        self.button_save.config(state='normal')
+        
+        # Populate the listboxes here
+        self.update_listboxes()
+
+        self.write_to_terminal("All metabolite and retention time data pasted into the listboxes.")
 
     def save_data(self):
         try:
@@ -1098,8 +1129,13 @@ class MetaboliteApp:
     def setup_rt_management_ui(self):
         self.tab_rt_management = ttk.Frame(self.notebook)
         self.notebook.add(self.tab_rt_management, text='RT Management')
-        self.tab_rt_management.grid_columnconfigure(1, weight=1)  # This gives the second column more space
-        #self.tab_rt_management.grid_rowconfigure(0, weight=1)
+        
+        # Assuming the terminal is at the bottom, we need to configure the grid rows properly
+        self.tab_rt_management.grid_rowconfigure(0, weight=0)  # Main content area
+        self.tab_rt_management.grid_rowconfigure(1, weight=0)  # File path display, fixed size
+
+        self.tab_rt_management.grid_columnconfigure(0, weight=0)
+        self.tab_rt_management.grid_columnconfigure(1, weight=1)
 
         # Fetch metabolite names from the database
         database = DatabaseObj(self.write_to_terminal)
@@ -1138,6 +1174,28 @@ class MetaboliteApp:
         # Separator
         separator = ttk.Separator(self.tab_rt_management, orient='horizontal')
         separator.grid(row=7, column=0, columnspan=2, sticky='ew', padx=10, pady=10)
+        
+        # Frame for displaying current file paths
+        self.path_display_frame_rt = tk.LabelFrame(self.tab_rt_management, text="Current File Paths")
+        self.path_display_frame_rt.grid(row=8, column=0, columnspan=2, sticky='ew', padx=5, pady=5)
+        self.path_display_frame_rt.grid_columnconfigure(1, weight=1)
+        self.display_paths_rt()
+
+
+    def display_paths_rt(self):
+        paths = {
+            "Full Met List Neg": path_current_neg,
+            "Full Met List Pos": path_current_pos
+        }
+        for idx, (label_text, path) in enumerate(paths.items()):
+            tk.Label(self.path_display_frame_rt, text=f"{label_text}:").grid(row=idx, column=0, sticky=tk.W, padx=5, pady=2)
+            path_label = tk.Label(self.path_display_frame_rt, text=path, anchor='w')
+            path_label.grid(row=idx, column=0, sticky='ew', padx=5, pady=2)
+
+
+    def update_path_labels(self, new_paths):
+        # This function can be called to update paths dynamically
+        self.display_paths_rt()
 
 
     def update_all_rts(self):
