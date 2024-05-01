@@ -96,7 +96,7 @@ class MetaboliteApp:
         
         # Path configuration frame
         self.path_display_frame = tk.LabelFrame(self.tab_missing_mets_detection, text="Current File Paths")
-        self.path_display_frame.grid(row=4, column=0, columnspan=2, sticky='ew', padx=5, pady=5)
+        self.path_display_frame.grid(row=4, column=0, columnspan=4, sticky='ew', padx=5, pady=5)
         self.path_display_frame.grid_columnconfigure(1, weight=1)
 
         # Filepath display for csv files
