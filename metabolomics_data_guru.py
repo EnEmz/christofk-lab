@@ -8,6 +8,7 @@ from pandastable import Table
 import re
 import mysql.connector
 from mysql.connector import Error
+import matplotlib.pyplot as plt
 
 # Global filepaths for mass and RT lists
 path_custom_list_neg = "C:\\Users\\nmatulionis\\Desktop\\ms1_rt_database_lists\\custom_list_neg.csv"
@@ -15,6 +16,95 @@ path_custom_list_pos = "C:\\Users\\nmatulionis\\Desktop\\ms1_rt_database_lists\\
 
 path_current_neg = "C:\\Users\\nmatulionis\\Desktop\\ms1_rt_database_lists\\current_zic_philic_ms1_rt_C13_neg.csv"
 path_current_pos = "C:\\Users\\nmatulionis\\Desktop\\ms1_rt_database_lists\\current_zic_philic_ms1_rt_C13_pos.csv"
+
+hek_std_peak_area_met_list_pos = [
+    'acetyl-carnitine',
+    'alanine',
+    'arginine',
+    'asparagine',
+    'betaine',
+    'carnitine',
+    'choline',
+    'citrulline',
+    'creatine',
+    'creatinine',
+    'cystathionine',
+    'glycine',
+    'leucine / isoleucine',
+    'lysine',
+    'methionine',
+    'NAD+',
+    'NADP+',
+    'nicotinamide',
+    'phenylalanine',
+    'phosphocholine',
+    'proline',
+    'propionyl-carnitine',
+    'S-adenosyl-methionine',
+    'serine',
+    'threonine',
+    'valine',
+]
+
+hek_std_peak_area_met_list_neg = [
+    '6-phosphogluconic acid',
+    'acetyl-CoA',
+    'ADP',
+    'alpha-ketoglutarate',
+    'aspartate',
+    'ATP',
+    'CDP',
+    'cis-aconitate',
+    'CMP',
+    'CTP',
+    'dihydroxyacetone-phosphate',
+    'fructose-1;6-bisphosphate',
+    'fructose-1-phosphate',
+    'fructose-6-phosphate',
+    'fructose',
+    'fumarate',
+    'GDP',
+    'glucose-6-phosphate',
+    'glucose',
+    'glutamate',
+    'glutamine',
+    'glyceraldehyde-3-phosphate',
+    'glycerol-3-phosphate',
+    'GMP',
+    'GSH',
+    'GSSG',
+    'GTP',
+    'histidine',
+    'hydroxyglutarate',
+    'IMP',
+    'lactate',
+    'lauric acid',
+    'malate',
+    'myristic acid',
+    'N-acetylglucosamine-phosphate',
+    'N-acetylglutamate',
+    'NADH',
+    'NADPH',
+    'oleic acid',
+    'palmitic acid',
+    'phosphoenolpyruvate',
+    'phosphoglycerate',
+    'pyruvate',
+    'rib/ribul/xylul-ose-phosphate',
+    'S-adenosyl-homocysteine',
+    'succinate',
+    'sedoheptulose-7-phoshate',
+    'taurine',
+    'trifluoromethanesulfonate',
+    'tryptophan',
+    'tyrosine',
+    'UDP-glucuronic acid',
+    'UDP',
+    'UDP-N-acetylglucosamine',
+    'uric acid',
+    'UTP',
+    'xylonic acid'
+]
 
 # Read the CSV files and extract unique metabolite names
 def get_unique_metabolites(file_path):
@@ -59,12 +149,13 @@ class MetaboliteApp:
         self.df_met_total = pd.concat([self.df_met_neg, self.df_met_pos], ignore_index=True)
         self.met_list_total = self.df_met_total['name'].str.split(' M').str[0].unique().tolist()
 
-        self.root.title("Metabolite Data Editor")
+        self.root.title("Metabolomics Data Guru")
         self.root.geometry("1000x1200")
 
         self.setup_missing_mets_ui()
         self.setup_metabolomics_conversion_ui()
         self.setup_rt_management_ui()
+        self.setup_met_std_peak_area_check_ui()
 
 
     def setup_missing_mets_ui(self):
@@ -80,15 +171,19 @@ class MetaboliteApp:
         
         # File path entry and Load button frame
         file_path_frame = tk.Frame(self.tab_missing_mets_detection)
-        file_path_frame.grid(row=0, column=0, columnspan=3, sticky='ew', padx=5, pady=5)
+        file_path_frame.grid(row=0, column=0, columnspan=4, sticky='ew', padx=5, pady=5)
 
         # Text entry for file path
         self.file_path_entry = tk.Entry(file_path_frame)
         self.file_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         # Paste all metabolites to listboxes button
-        self.button_paste_all = tk.Button(file_path_frame, text="Paste All Mets", command=self.paste_all_mets)
+        self.button_paste_all = tk.Button(file_path_frame, text="Paste Met Stds", command=self.paste_met_stds)
         self.button_paste_all.pack(side=tk.RIGHT, padx=5)
+        
+        # Paste all metabolites to listboxes button
+        self.button_paste_met_std = tk.Button(file_path_frame, text="Paste All Mets", command=self.paste_all_mets)
+        self.button_paste_met_std.pack(side=tk.RIGHT, padx=5)
 
         # Load button
         load_button = tk.Button(file_path_frame, text="Upload Analysis File", command=self.load_file)
@@ -742,6 +837,38 @@ class MetaboliteApp:
 
         self.write_to_terminal("All metabolite and retention time data pasted into the listboxes.")
 
+
+    def paste_met_stds(self):
+         # Clear existing entries from listboxes
+        self.listbox_neg.delete(0, tk.END)
+        self.listbox_pos.delete(0, tk.END)
+        self.listbox_rt_neg.delete(0, tk.END)
+        self.listbox_rt_pos.delete(0, tk.END)
+
+        self.df_met_neg['simple_name'] = self.df_met_neg['name'].str.split(' M').str[0]
+        self.df_met_pos['simple_name'] = self.df_met_pos['name'].str.split(' M').str[0]
+        
+        self.filtered_df_neg = self.df_met_neg[self.df_met_neg['simple_name'].isin(hek_std_peak_area_met_list_neg)]
+        self.filtered_df_pos = self.df_met_pos[self.df_met_pos['simple_name'].isin(hek_std_peak_area_met_list_pos)]
+        
+        self.filtered_df_neg = self.filtered_df_neg.reset_index(drop=True)
+        self.filtered_df_pos = self.filtered_df_pos.reset_index(drop=True)
+
+        # Enable interaction with listboxes if previously disabled
+        self.listbox_neg.config(state='normal')
+        self.listbox_rt_neg.config(state='normal')
+        self.listbox_pos.config(state='normal')
+        self.listbox_rt_pos.config(state='normal')
+        self.button_del_neg.config(state='normal')
+        self.button_del_pos.config(state='normal')
+        self.button_save.config(state='normal')
+        
+        # Populate the listboxes here
+        self.update_listboxes()
+
+        self.write_to_terminal("Metabolite and retention time data pasted into the listboxes for metabolomics std sample peak areas.")
+        
+
     def save_data(self):
         try:
             # First, let's make sure we're working with the latest RT values
@@ -1225,7 +1352,46 @@ class MetaboliteApp:
             database.update_single_rt(met_name, rt)
         finally:
             database.disconnect()
+            
+            
+            
+    def setup_met_std_peak_area_check_ui(self):
+        self.tab_peak_area_check = ttk.Frame(self.notebook)
+        self.notebook.add(self.tab_peak_area_check, text='Std Peak Area Check')
+        
+        # Upload CSV File UI
+        self.file_path_frame_peak_area = tk.Frame(self.tab_peak_area_check)
+        self.file_path_frame_peak_area.pack(fill='x', pady=15)
+        self.file_path_entry_peak_area = tk.Entry(self.file_path_frame_peak_area)
+        self.file_path_entry_peak_area.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        self.upload_button_peak_area = tk.Button(self.file_path_frame_peak_area, text="Upload Met Std Peak Area Data", command=self.upload_std_peak_area_file)
+        self.upload_button_peak_area.pack(side=tk.RIGHT, padx=5)
+
     
+    
+    
+    def upload_std_peak_area_file(self):
+        analysis_fpath = filedialog.askopenfilename()
+        self.file_path_entry_peak_area.delete(0, tk.END)
+        self.file_path_entry_peak_area.insert(0, analysis_fpath)
+        
+        if self.is_excel_file(analysis_fpath):
+            xls = pd.ExcelFile(analysis_fpath)
+
+            if 'PoolAfterDF' in xls.sheet_names:
+                self.df_met_std_area = pd.read_excel(analysis_fpath, sheet_name='PoolAfterDF')
+            else:
+                self.write_to_terminal("'PoolAfterDF' excel sheet not present.")
+                return
+            
+            
+
+
+
+
+
+
+
 
 class CustomSpinbox:
     def __init__(self, parent, from_, to, write_to_terminal, initial_value=0):
@@ -1473,6 +1639,7 @@ class AutocompleteEntry(tk.Entry):
     def on_focus_out(self, event):
         # Optionally hide the listbox when focus is lost
         self.clear_listbox()
+        
 
 
 # Running the Application
