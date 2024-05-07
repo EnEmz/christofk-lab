@@ -926,6 +926,9 @@ class MetaboliteApp:
             # Process column names
             df.columns = [col.replace('___pos', '') if '___pos' in col else col for col in df.columns]
             df.columns = [col.replace('___neg', '') if '___neg' in col else col for col in df.columns]
+            
+            df.columns = [col.replace('__pos', '') if '__pos' in col else col for col in df.columns]
+            df.columns = [col.replace('__neg', '') if '__neg' in col else col for col in df.columns]
             df.columns = [self.replace_p_with_dot(col) for col in df.columns]
 
             if self.labelling_present_var_conversion.get():
@@ -1355,20 +1358,41 @@ class MetaboliteApp:
             
             
             
+            
     def setup_met_std_peak_area_check_ui(self):
         self.tab_peak_area_check = ttk.Frame(self.notebook)
         self.notebook.add(self.tab_peak_area_check, text='Std Peak Area Check')
         
-        # Upload CSV File UI
+        # Upload Excel File UI
         self.file_path_frame_peak_area = tk.Frame(self.tab_peak_area_check)
         self.file_path_frame_peak_area.pack(fill='x', pady=15)
+        
         self.file_path_entry_peak_area = tk.Entry(self.file_path_frame_peak_area)
         self.file_path_entry_peak_area.pack(side=tk.LEFT, fill=tk.X, expand=True)
         self.upload_button_peak_area = tk.Button(self.file_path_frame_peak_area, text="Upload Met Std Peak Area Data", command=self.upload_std_peak_area_file)
         self.upload_button_peak_area.pack(side=tk.RIGHT, padx=5)
 
+        # Tkinter Table view.
+        self.std_met_peak_area_stats = tk.Frame(self.tab_peak_area_check)
+        self.std_met_peak_area_stats.pack(fill='x', pady=15)
+        
+        self.met_stats_table = ttk.Treeview(self.std_met_peak_area_stats)
+        self.met_stats_table['columns'] = ('Mean', 'Variance', 'RSD')
+        
+        self.met_stats_table.heading("#0", text="Compound", anchor=tk.CENTER)  # Tree column heading
+        self.met_stats_table.column("#0", anchor=tk.CENTER)  # Tree column width
+        
+        self.met_stats_table.heading('Mean', text="Mean", anchor=tk.CENTER)
+        self.met_stats_table.column('Mean', anchor=tk.CENTER)
+
+        self.met_stats_table.heading('Variance', text="Variance", anchor=tk.CENTER)
+        self.met_stats_table.column('Variance', anchor=tk.CENTER)
+
+        self.met_stats_table.heading('RSD', text="RSD (%)", anchor=tk.CENTER)
+        self.met_stats_table.column('RSD', anchor=tk.CENTER)
     
-    
+        self.met_stats_table.pack(fill='x', pady=5, padx=15)
+
     
     def upload_std_peak_area_file(self):
         analysis_fpath = filedialog.askopenfilename()
@@ -1384,13 +1408,39 @@ class MetaboliteApp:
                 self.write_to_terminal("'PoolAfterDF' excel sheet not present.")
                 return
             
+            self.df_met_std_area.set_index('Compound', inplace=True)
             
+            trifluoro_values = self.df_met_std_area.loc['trifluoromethanesulfonate']
+            normalized_df = self.df_met_std_area.apply(lambda x: x / trifluoro_values if x.name != 'Compound' else x, axis=1)
+            
+            # Calculate variance and standard deviation (RSD)
+            self.df_met_std_area['Mean'] = self.df_met_std_area.mean(axis=1)
+            self.df_met_std_area['Variance'] = self.df_met_std_area.var(axis=1)
+            self.df_met_std_area['RSD'] = self.df_met_std_area.std(axis=1) / self.df_met_std_area.mean(axis=1)
+            
+            # Update TreeView
+            self.update_treeview()
 
 
 
 
 
 
+
+
+
+    def update_treeview(self):
+        # Clear existing data in the TreeView
+        for i in self.met_stats_table.get_children():
+            self.met_stats_table.delete(i)
+
+        # Insert new data
+        for index, row in self.df_met_std_area.iterrows():
+            # Note: the 'index' is used for the first tree column directly
+            mean = f"{row['Mean']:.2e}"  # Formatting to 2 decimal places
+            variance = f"{row['Variance']:.2e}"  # Formatting to 2 decimal places
+            rsd = f"{row['RSD'] * 100:.2f}%"  # Convert to percentage and format
+            self.met_stats_table.insert('', 'end', iid=index, text=str(index), values=(mean, variance, rsd))
 
 
 class CustomSpinbox:
