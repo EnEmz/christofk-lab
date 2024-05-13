@@ -930,6 +930,9 @@ class MetaboliteApp:
             df.columns = [col.replace('__pos', '') if '__pos' in col else col for col in df.columns]
             df.columns = [col.replace('__neg', '') if '__neg' in col else col for col in df.columns]
             df.columns = [self.replace_p_with_dot(col) for col in df.columns]
+            
+            for col in df.select_dtypes(include=[object]):  # This selects only columns with object dtype
+                df[col] = df[col].str.strip()
 
             if self.labelling_present_var_conversion.get():
                 self.convert_save_csv_file(df, file_path)
@@ -1377,7 +1380,7 @@ class MetaboliteApp:
         self.std_met_peak_area_stats.pack(fill='x', pady=15)
         
         self.met_stats_table = ttk.Treeview(self.std_met_peak_area_stats)
-        self.met_stats_table['columns'] = ('Mean', 'Variance', 'RSD')
+        self.met_stats_table['columns'] = ('Mean', 'Variance', 'RSD', 'Norm Mean', 'Norm Variance', 'Norm RSD')
         
         self.met_stats_table.heading("#0", text="Compound", anchor=tk.CENTER)  # Tree column heading
         self.met_stats_table.column("#0", anchor=tk.CENTER)  # Tree column width
@@ -1390,6 +1393,15 @@ class MetaboliteApp:
 
         self.met_stats_table.heading('RSD', text="RSD (%)", anchor=tk.CENTER)
         self.met_stats_table.column('RSD', anchor=tk.CENTER)
+        
+        self.met_stats_table.heading('Norm Mean', text="Norm Mean", anchor=tk.CENTER)
+        self.met_stats_table.column('Norm Mean', anchor=tk.CENTER)
+
+        self.met_stats_table.heading('Norm Variance', text="Norm Variance", anchor=tk.CENTER)
+        self.met_stats_table.column('Norm Variance', anchor=tk.CENTER)
+
+        self.met_stats_table.heading('Norm RSD', text="Norm RSD (%)", anchor=tk.CENTER)
+        self.met_stats_table.column('Norm RSD', anchor=tk.CENTER)
     
         self.met_stats_table.pack(fill='x', pady=5, padx=15)
 
@@ -1411,12 +1423,16 @@ class MetaboliteApp:
             self.df_met_std_area.set_index('Compound', inplace=True)
             
             trifluoro_values = self.df_met_std_area.loc['trifluoromethanesulfonate']
-            normalized_df = self.df_met_std_area.apply(lambda x: x / trifluoro_values if x.name != 'Compound' else x, axis=1)
+            self.normalized_df_met_std_area = self.df_met_std_area.apply(lambda x: x / trifluoro_values if x.name != 'Compound' else x, axis=1)
             
             # Calculate variance and standard deviation (RSD)
             self.df_met_std_area['Mean'] = self.df_met_std_area.mean(axis=1)
             self.df_met_std_area['Variance'] = self.df_met_std_area.var(axis=1)
             self.df_met_std_area['RSD'] = self.df_met_std_area.std(axis=1) / self.df_met_std_area.mean(axis=1)
+            
+            self.normalized_df_met_std_area['Mean'] = self.normalized_df_met_std_area.mean(axis=1)
+            self.normalized_df_met_std_area['Variance'] = self.normalized_df_met_std_area.var(axis=1)
+            self.normalized_df_met_std_area['RSD'] = self.normalized_df_met_std_area.std(axis=1) / self.normalized_df_met_std_area.mean(axis=1)
             
             # Update TreeView
             self.update_treeview()
@@ -1436,11 +1452,19 @@ class MetaboliteApp:
 
         # Insert new data
         for index, row in self.df_met_std_area.iterrows():
-            # Note: the 'index' is used for the first tree column directly
+            # Original DataFrame
             mean = f"{row['Mean']:.2e}"  # Formatting to 2 decimal places
             variance = f"{row['Variance']:.2e}"  # Formatting to 2 decimal places
             rsd = f"{row['RSD'] * 100:.2f}%"  # Convert to percentage and format
-            self.met_stats_table.insert('', 'end', iid=index, text=str(index), values=(mean, variance, rsd))
+
+            # Normalized DataFrame
+            norm_mean = f"{self.normalized_df_met_std_area.loc[index, 'Mean']:.2e}"
+            norm_variance = f"{self.normalized_df_met_std_area.loc[index, 'Variance']:.2e}"
+            norm_rsd = f"{self.normalized_df_met_std_area.loc[index, 'RSD'] * 100:.2f}%"
+
+            # Inserting both original and normalized data into the same row
+            self.met_stats_table.insert('', 'end', iid=index, text=str(index),
+                                        values=(mean, variance, rsd, norm_mean, norm_variance, norm_rsd))
 
 
 class CustomSpinbox:
