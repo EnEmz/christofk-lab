@@ -38,8 +38,9 @@ desired_width = 320
 pd.set_option('display.width', desired_width)
 pd.set_option('display.max_columns', 10)
 
+
 open_sans_font = fm.FontProperties(
-    fname="C:\\Users\\nmatulionis\\Desktop\\python_report\\fonts\\Open_Sans\\OpenSans-Regular.ttf")
+    fname="C:\\Users\\AKrall-admin\\Desktop\\Py_Env\\christofk-lab\\python_report\\fonts\\Open_Sans\\OpenSans-Regular.ttf")
 
 
 def color_ramp(colors, n):
@@ -283,9 +284,8 @@ class PdfImage(Flowable):
             canv.drawImage(img, x, y, self.img_width, self.img_height)
         canv.restoreState()
 
-
 # Usual sheet of metabolites for the report
-ANALYTE_META_DATA = pd.read_csv("C:\\Users\\nmatulionis\\Desktop\\python_report\\analyte_classes_philic.csv",
+ANALYTE_META_DATA = pd.read_csv("C:\\Users\\AKrall-admin\\Desktop\\Py_Env\\christofk-lab\\metabolite_classes.csv",
                                 dtype={0: 'str', 1: 'str', 2: 'str'})
 
 # Custom sheet of metabolites for report
