@@ -1,2 +1,5 @@
 .venv/
 .27/
+/previous_data.json
+/data_tester.ipynb
+
