@@ -35,12 +35,7 @@ from matplotlib import font_manager as fm, rcParams
 
 
 
-
-
-
-
-
-
+# --------------------------------------------------------------------------------------------------------
 
 # Tue or False
 labelling_present = True
@@ -49,17 +44,7 @@ labelling_present = True
 pdf_filename = 'this-is-a-test'
 
 
-
-
-
-
-
-
-
-
-
-
-
+# --------------------------------------------------------------------------------------------------------
 
 
 desired_width = 320
