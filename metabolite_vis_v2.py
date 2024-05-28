@@ -9,9 +9,9 @@ import matplotlib.colors as mc
 import matplotlib.cm as cm
 from scipy import stats
 import matplotlib.pyplot as plt
-import tkinter as tk
-import tkinter.font as font
-from tkinter.filedialog import askopenfilename
+import Tkinter as tk
+import tkFont as font
+from tkFileDialog import askopenfilename
 from pdfrw import PdfReader, PdfDict
 from pdfrw.buildxobj import pagexobj
 from pdfrw.toreportlab import makerl
@@ -655,7 +655,7 @@ class MetaboliteReport:
 
             if old_group_id != "" and group_id != old_group_id:
                 #Heatmap column spacing
-                w = (HEATMAP_TILE_W * num_samples + 0.15) * inch``
+                w = (HEATMAP_TILE_W * num_samples + 0.15) * inch
                 col_widths.append(w)
                 space_remaining -= w
                 num_samples = 1
