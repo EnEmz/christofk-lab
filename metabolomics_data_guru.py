@@ -14,13 +14,14 @@ import matplotlib.pyplot as plt
 # Global filepaths for mass and RT lists
 # Get the path to the user's desktop
 desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+docs_path = os.path.join(os.path.expanduser("~"), "Documents")
 
 # Global filepaths for mass and RT lists
-path_custom_list_neg = os.path.join(desktop_path, "ms1_rt_database_lists", "custom_list_neg.csv")
-path_custom_list_pos = os.path.join(desktop_path, "ms1_rt_database_lists", "custom_list_pos.csv")
+path_custom_list_neg = os.path.join(docs_path, "Programming", "christofk-lab", "hek_std_model", "custom_list_neg.csv")
+path_custom_list_pos = os.path.join(docs_path, "Programming", "christofk-lab", "hek_std_model", "custom_list_pos.csv")
 
-path_current_neg = os.path.join(desktop_path, "ms1_rt_database_lists", "current_zic_philic_ms1_rt_C13_neg.csv")
-path_current_pos = os.path.join(desktop_path, "ms1_rt_database_lists", "current_zic_philic_ms1_rt_C13_pos.csv")
+path_current_neg = os.path.join(docs_path, "Programming", "christofk-lab", "hek_std_model", "current_zic_philic_ms1_rt_C13_neg.csv")
+path_current_pos = os.path.join(docs_path, "Programming", "christofk-lab", "hek_std_model", "current_zic_philic_ms1_rt_C13_pos.csv")
 
 hek_std_peak_area_met_list_pos = [
     'acetyl-carnitine',
