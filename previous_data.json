@@ -1,11 +1,13 @@
 {
     "previous entry": [
         {
-            "project_str": "testy", 
-            "groups_str": "one,two,three,four", 
-            "exp_title": "testy", 
-            "leader_str": "testy two", 
-            "description_box": "Glutamine tracing performed on either overexpressed ZFP36L1 or empty vector MCF10A cells. Cells were labeled with U-13C-glutamine to determine if overexpressing ZFP36L1 influences the carbon fate of Ad5 infected cells. These cells were simultaneously either mock or adenovirus infected at the same time point. Extractions were performed 24 hrs post tracer and infection treatment. Abby and Francesca are doing a good job."
+            "labelling_present": false, 
+            "leader_str": "Sara Frigui", 
+            "exp_title": "20240403 Rando female cohort - aged/exercised - Muscle", 
+            "project_str": "skeletal-muscle || hehe", 
+            "groups_str": "FOC,FOE,FYC,FYE", 
+            "pdf_filename": "tis_tats", 
+            "description_box": "There were 4 groups of female mice (n=5 per group): young control (FYC); young exercised (FYE); old control (FOC); and old exercised (FOE). Muscle (tibialis anterior) was extracted for metabolomics\t"
         }
     ]
 }
