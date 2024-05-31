@@ -1,10 +1,3 @@
-import logging
-
-# Setup logging
-logging.basicConfig(level=logging.DEBUG, filename='pdf_report_generation.log', filemode='w')
-logger = logging.getLogger(__name__)  # Obtain the logger instance
-logger.setLevel(logging.INFO)  # Set the logging level
-
 import math
 import datetime
 import pandas as pd
@@ -37,11 +30,6 @@ from reportlab.lib.units import inch
 
 import os
 from matplotlib import font_manager as fm, rcParams
-
-# Setup logging
-logging.basicConfig(level=logging.DEBUG, filename='pdf_report_generation.log', filemode='w')
-logger = logging.getLogger(__name__)  # Obtain the logger instance
-logger.setLevel(logging.INFO)  # Set the logging level
 
 # --------------------------------------------------------------------------------------------------------
 
@@ -791,7 +779,6 @@ def generateReport():
 
 
     except Exception as e:
-        logger.error("Error generating report: %s", e)
         print("Error generating report:", e)
 
 def savePreviousEntry():
@@ -821,7 +808,6 @@ def loadPreviousEntry():
             pdf_filename.set(data["previous entry"][0]["pdf_filename"])
             labelling_present.set(data["previous entry"][0]["labelling_present"])
     except Exception as e:
-        logger.error("Error loading previous entry: %s", e)
         print("Error loading previous entry:", e)
 
 window = tk.Tk()
