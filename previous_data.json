@@ -1,11 +1,11 @@
 {
     "previous entry": [
         {
-            "project_str": "HLRCC-FH | NCCFH1 | 15N Asparagine",
-            "exp_title": "cells-NCCFH1-6hr-none-UC13glc-gln-15N-Asn-D4-Cystine-label",
-            "leader_str": "Blake Wilde",
-            "description_box": "NCCFH1 HLRCC cells expressing FH or GFP. Cells were treated for 6 hours with media containing labeled metabolites: None; U-13C-Glucose; U-13C-Glutamine; 15N-Asparagine; and 3;3;3';3'-D4-Cystine.\n",
-            "groups_str": "GFP,FH"
+            "project_str": "testy", 
+            "groups_str": "one,two,three,four", 
+            "exp_title": "testy", 
+            "leader_str": "testy two", 
+            "description_box": "Glutamine tracing performed on either overexpressed ZFP36L1 or empty vector MCF10A cells. Cells were labeled with U-13C-glutamine to determine if overexpressing ZFP36L1 influences the carbon fate of Ad5 infected cells. These cells were simultaneously either mock or adenovirus infected at the same time point. Extractions were performed 24 hrs post tracer and infection treatment. Abby and Francesca are doing a good job."
         }
     ]
 }

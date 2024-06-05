@@ -9,9 +9,9 @@ import matplotlib.colors as mc
 import matplotlib.cm as cm
 from scipy import stats
 import matplotlib.pyplot as plt
-import tkinter as tk
-import tkinter.font as font
-from tkinter.filedialog import askopenfilename
+import Tkinter as tk
+import tkFont as font
+from tkFileDialog import askopenfilename
 from pdfrw import PdfReader, PdfDict
 from pdfrw.buildxobj import pagexobj
 from pdfrw.toreportlab import makerl
@@ -32,6 +32,20 @@ from reportlab.lib.units import inch
 
 import os
 from matplotlib import font_manager as fm, rcParams
+
+
+
+# --------------------------------------------------------------------------------------------------------
+
+# Tue or False
+labelling_present = True
+
+# This is the export filename
+pdf_filename = 'this-is-a-test'
+
+
+# --------------------------------------------------------------------------------------------------------
+
 
 desired_width = 320
 
@@ -61,7 +75,19 @@ def getCompoundDataFromData(data, group_num, cmpd_str):
 
 
 def getNumTotalGroups(data):
-    return data[data['Compound'] == "group"].max(axis=1)[0].astype(int)
+    group_data = data[data['Compound'] == "group"]
+    if group_data.empty:
+        raise ValueError("No group data found.")
+    
+    max_group_number = group_data.iloc[:, 1:].max(axis=1)
+    print("Max group number series:", max_group_number)
+
+    try:
+        num_groups = int(max_group_number.values[0])
+    except (ValueError, IndexError) as e:
+        raise ValueError("Could not determine the number of groups from the data. Please check your input data.")
+    
+    return num_groups
 
 
 def getGroupedAverageDataFromData(data, num_groups, cmpd_str, group_names={}):
@@ -851,9 +877,9 @@ def generateReport():
         group_names[i] = name
         i += 1
 
-    report = MetaboliteReport("mouse-serum-and-muscle-young-or-old-w-or-wo-exercise-female-group-serum",
+    report = MetaboliteReport(pdf_filename,
                               iso_dist_data, pool_size_data,
-                              show_iso=False,
+                              show_iso=labelling_present,
                               group_names=group_names)
 
     report.configureTitlePage(title=title_str.get(),
@@ -888,10 +914,11 @@ def generateReport():
     # report.build_with_metabolite_classes(("carnitine-synthesis",))
     report.output_build_to_folder("test")
 
-
+pyenvdir = "C:\\Users\\AKrall-admin\\Desktop\\Py_Env\\christofk-lab"
+filepath = os.path.join(pyenvdir, 'previous_data.json')
 
 def savePreviousEntry():
-
+        
         data = {}
         data['previous entry'] = []
         data['previous entry'].append({
@@ -902,12 +929,12 @@ def savePreviousEntry():
             'groups_str': groups_str.get()
         })
 
-        with open('previous_data.json', 'w') as json_file:
+        with open(filepath, 'w') as json_file:
             json.dump(data, json_file, indent=4)
 
 
 def loadPreviousEntry():
-    with open('previous_data.json', 'r') as json_file:
+    with open(filepath, 'r') as json_file:
         data = json.load(json_file)
         project_str.set(data["previous entry"][0]["project_str"])
         exp_title.set(data["previous entry"][0]["exp_title"])
@@ -954,7 +981,5 @@ tk.Button(window, text="Save Entry", command=savePreviousEntry).grid(sticky="e",
 tk.Button(window, text="Load Entry", command=loadPreviousEntry).grid(sticky="e", row=8, column=1, padx=5, pady=5)
 
 window.mainloop()
-
-
 
 

@@ -582,8 +582,17 @@ class MetaboliteApp:
         else:
             met_list_not_iso = set()
 
+
+        def remove_duplicates_preserve_order(seq):
+            seen = set()
+            seen_add = seen.add
+            return [x for x in seq if not (x in seen or seen_add(x))]
+
         # Combine the missing metabolite lists from both PoolAfterDF and Normalized (if present)
         combined_met_list_missing = list(met_list_not_pool.union(met_list_not_iso))
+
+        # Remove duplicates by converting to a set and back to a list
+        combined_met_list_missing = remove_duplicates_preserve_order(combined_met_list_missing)
 
         self.df_met_neg['simple_name'] = self.df_met_neg['name'].str.split(' M').str[0]
         self.df_met_pos['simple_name'] = self.df_met_pos['name'].str.split(' M').str[0]
