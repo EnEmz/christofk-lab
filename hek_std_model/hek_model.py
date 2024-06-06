@@ -112,6 +112,9 @@ class MetaboliteAnalysisApp(tk.Tk):
         self.upload_button_peak_area = tk.Button(self.file_path_frame_peak_area, text="Upload Met Std Peak Area Data", command=self.upload_std_peak_area_file)
         self.upload_button_peak_area.grid(row=0, column=1, padx=5)
 
+        self.save_button_peak_area = tk.Button(self.file_path_frame_peak_area, text="Save Uploaded Data", command=self.save_uploaded_data)
+        self.save_button_peak_area.grid(row=0, column=2, padx=5)
+
         self.std_met_peak_area_stats = tk.Frame(self.tab_peak_area_check)
         self.std_met_peak_area_stats.grid(row=1, column=0, sticky='nsew', pady=15)
 
@@ -151,6 +154,43 @@ class MetaboliteAnalysisApp(tk.Tk):
         # Summary frame
         self.summary_frame = tk.Frame(self.tab_peak_area_check)
         self.summary_frame.grid(row=2, column=0, sticky='ew', pady=10)
+
+    
+    def save_uploaded_data(self):
+        if not hasattr(self, 'df'):
+            messagebox.showerror("Error", "No data has been uploaded.")
+            return
+
+        popup = tk.Toplevel()
+        popup.title("Save Uploaded Data")
+        popup.geometry("300x200")
+
+        tk.Label(popup, text="Enter Date (YYYYMMDD):").pack(pady=5)
+        date_entry = tk.Entry(popup)
+        date_entry.pack(pady=5)
+
+        tk.Label(popup, text="Enter Column ID (##), only the number:").pack(pady=5)
+        col_id_entry = tk.Entry(popup)
+        col_id_entry.pack(pady=5)
+
+        def save():
+            date = date_entry.get()
+            col_id = col_id_entry.get()
+            if not date or not col_id:
+                messagebox.showerror("Error", "Both fields are required.")
+                return
+
+            filename = f"{date}_col_id_{col_id}_hek_area_edited.xlsx"
+            filepath = os.path.join(base_dir, 'hek_stored_runs', filename)
+
+            # Save the DataFrame to Excel with the specified sheet name
+            with pd.ExcelWriter(filepath, engine='xlsxwriter') as writer:
+                self.df.to_excel(writer, sheet_name='PoolAfterDF', index=True)
+
+            messagebox.showinfo("Success", f"File saved as {filename}")
+            popup.destroy()
+
+        tk.Button(popup, text="Save", command=save).pack(pady=20)
 
 
     def _on_vertical_scroll(self, *args):
