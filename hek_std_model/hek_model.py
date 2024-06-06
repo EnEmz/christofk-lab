@@ -7,6 +7,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import os
 from pandastable import Table, TableModel
+import sys
 
 # Dynamically construct the class_ion_data_path using the current working directory
 base_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the current script
@@ -62,8 +63,17 @@ class MetaboliteAnalysisApp(tk.Tk):
         self.create_class_ion_mappings()
 
         self.setup_met_std_peak_area_check_ui()
+
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+
+    def on_closing(self):
+        self.quit()
+        self.destroy()
+        sys.exit(0)
     
-    def apply_custom_theme(self, table):
+
+    def apply_custom_theme_for_table(self, table):
         options = {
             'cellbackgr': '#e6e6e6',
             'cellforegr': '#000000',
@@ -81,6 +91,7 @@ class MetaboliteAnalysisApp(tk.Tk):
         for key, value in options.items():
             setattr(table, key, value)
         table.redraw()
+
 
     def set_column_widths(self, table, df):
         """Set column widths based on the content of the dataframe."""
@@ -120,7 +131,7 @@ class MetaboliteAnalysisApp(tk.Tk):
         self.hsb.grid(row=1, column=0, sticky='ew')
 
         # Apply custom theme
-        self.apply_custom_theme(self.table)
+        self.apply_custom_theme_for_table(self.table)
 
         self.table.show()
 
@@ -215,8 +226,8 @@ class MetaboliteAnalysisApp(tk.Tk):
                     df_original = pd.read_excel(path, index_col='Compound')
                     if 'trifluoromethanesulfonate' in df_original.index:
                         df_normalized = df_original.div(df_original.loc['trifluoromethanesulfonate'])
-                        date_label = file.split('_')[0]
-                        stored_data[date_label] = (df_original, df_normalized)
+                        date_label, col_id = file.split('_')[0], file.split('_')[3]  # Extract date and col_id
+                        stored_data[date_label] = (df_original, df_normalized, col_id)
                 except Exception as e:
                     print(f"Failed to load {file}: {e}")
         return stored_data
@@ -256,7 +267,7 @@ class MetaboliteAnalysisApp(tk.Tk):
         stored_iqrs = {}
         internal_standard = 'trifluoromethanesulfonate'
 
-        for date_label, (df_orig, df_norm) in self.stored_data.items():
+        for date_label, (df_orig, df_norm, col_id) in self.stored_data.items():
             df_to_use = df_norm if normalized else df_orig
             for compound in df_to_use.index:
                 if compound not in stored_means:
@@ -305,15 +316,17 @@ class MetaboliteAnalysisApp(tk.Tk):
 
     def stored_data_mean(self, compound, normalized):
         means = []
-        for date_label, (df_orig, df_norm) in self.stored_data.items():
+        for date_label, (df_orig, df_norm, col_id) in self.stored_data.items():
             df_to_use = df_norm if normalized else df_orig
             if compound in df_to_use.index:
                 means.append(df_to_use.loc[compound].mean())
         return np.mean(means) if means else 1  # Return 1 if no means found to avoid division by zero
 
+
     def calculate_variability_impact(self, data):
         # Calculate the standard deviation as a measure of variability
         return data.std() / data.mean() if data.mean() != 0 else data.std()
+
 
     def detect_outliers(self, data):
         # Calculate the number of outliers based on IQR
@@ -325,6 +338,7 @@ class MetaboliteAnalysisApp(tk.Tk):
         outlier_impact = len(outliers) / len(data)  # Proportion of outliers
         return outlier_impact
 
+
     def normalize_scores(self, scores):
         min_score = min(scores.values())
         max_score = max(scores.values())
@@ -332,6 +346,7 @@ class MetaboliteAnalysisApp(tk.Tk):
         if range_score == 0:
             return {compound: 0.5 for compound in scores}
         return {compound: (score - min_score) / range_score for compound, score in scores.items()}
+
 
     def update_table(self, sort_by=None):
         scores = self.calculate_scores()  # Calculate scores if scoring is applied
@@ -521,28 +536,31 @@ class MetaboliteAnalysisApp(tk.Tk):
 
         data_lists = []
         labels = []
+        col_id_list = []
 
         # Prepare data from stored files
         stored_data_entries = []
-        for date_label, (df_orig, df_norm) in self.stored_data.items():
+        for date_label, (df_orig, df_norm, col_id) in self.stored_data.items():
             df_to_use = df_norm if normalized else df_orig
             if compound_name in df_to_use.index:
                 data = df_to_use.loc[compound_name].values.flatten()
-                stored_data_entries.append((date_label, data))
+                stored_data_entries.append((date_label, data, col_id))
 
         # Sort data by date label to ensure consistent order
         stored_data_entries.sort(key=lambda x: x[0])
 
         # Append sorted data
-        for date_label, data in stored_data_entries:
+        for date_label, data, col_id in stored_data_entries:
             data_lists.append(data)
-            labels.append(date_label)
+            labels.append(f"{date_label} ({col_id})")
+            col_id_list.append(col_id)
 
         # Add the new data last
         if compound_name in (self.df_normalized if normalized else self.df).index:
             current_data = (self.df_normalized if normalized else self.df).loc[compound_name].values.flatten()
             data_lists.append(current_data)
-            labels.append('New')  # This label will appear last
+            labels.append('New')
+            col_id_list.append('New')  # This label will appear last
 
         # Ensure all entries in data_lists are 1D arrays
         data_lists = [np.array(data).flatten() for data in data_lists]
@@ -551,14 +569,28 @@ class MetaboliteAnalysisApp(tk.Tk):
         if data_lists:
             popup = tk.Toplevel()
             popup.title(f"{title_suffix} - {compound_name}")
-            popup.geometry("1000x600")
+            popup.geometry("1300x1000")
 
             fig, ax = plt.subplots()
-            ax.boxplot(data_lists, tick_labels=labels, notch=True, patch_artist=True)
+
+            # Generate a color palette
+            unique_col_ids = list(set(col_id_list))
+            color_palette = plt.get_cmap("tab20")(np.linspace(0, 1, len(unique_col_ids)))
+            col_id_to_color = {col_id: color_palette[i] for i, col_id in enumerate(unique_col_ids)}
+
+            boxprops = dict(linestyle='-', linewidth=2)
+            medianprops = dict(linestyle='-', linewidth=1, color='firebrick')
+
+            for i, (data, col_id) in enumerate(zip(data_lists, col_id_list)):
+                box = ax.boxplot(data, positions=[i], widths=0.6, patch_artist=True, 
+                                boxprops=boxprops, medianprops=medianprops)
+                for patch in box['boxes']:
+                    patch.set_facecolor(col_id_to_color[col_id])
+
+            ax.set_xticklabels(labels, rotation=45)
             ax.set_title(f"{title_suffix} - {compound_name}")
             ax.set_ylabel('Normalized Peak Area Values' if normalized else 'Original Peak Area Values')
-            ax.set_xlabel('Date')
-            ax.tick_params(axis='x', rotation=45)
+            ax.set_xlabel('Date (Column ID)')
 
             plt.tight_layout()
             canvas = FigureCanvasTkAgg(fig, master=popup)
