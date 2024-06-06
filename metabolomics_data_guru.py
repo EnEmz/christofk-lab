@@ -17,11 +17,11 @@ desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
 docs_path = os.path.join(os.path.expanduser("~"), "Documents")
 
 # Global filepaths for mass and RT lists
-path_custom_list_neg = os.path.join(docs_path, "Programming", "christofk-lab", "hek_std_model", "custom_list_neg.csv")
-path_custom_list_pos = os.path.join(docs_path, "Programming", "christofk-lab", "hek_std_model", "custom_list_pos.csv")
+path_custom_list_neg = os.path.join(desktop_path, "ms1_rt_database_lists", "custom_list_neg.csv")
+path_custom_list_pos = os.path.join(desktop_path, "ms1_rt_database_lists", "custom_list_pos.csv")
 
-path_current_neg = os.path.join(docs_path, "Programming", "christofk-lab", "hek_std_model", "current_zic_philic_ms1_rt_C13_neg.csv")
-path_current_pos = os.path.join(docs_path, "Programming", "christofk-lab", "hek_std_model", "current_zic_philic_ms1_rt_C13_pos.csv")
+path_current_neg = os.path.join(desktop_path, "ms1_rt_database_lists", "current_zic_philic_ms1_rt_C13_neg.csv")
+path_current_pos = os.path.join(desktop_path, "ms1_rt_database_lists", "current_zic_philic_ms1_rt_C13_pos.csv")
 
 hek_std_peak_area_met_list_pos = [
     'acetyl-carnitine',
@@ -161,7 +161,6 @@ class MetaboliteApp:
         self.setup_missing_mets_ui()
         self.setup_metabolomics_conversion_ui()
         self.setup_rt_management_ui()
-        self.setup_met_std_peak_area_check_ui()
 
 
     def setup_missing_mets_ui(self):
@@ -1373,113 +1372,6 @@ class MetaboliteApp:
             database.update_single_rt(met_name, rt)
         finally:
             database.disconnect()
-            
-            
-            
-            
-    def setup_met_std_peak_area_check_ui(self):
-        self.tab_peak_area_check = ttk.Frame(self.notebook)
-        self.notebook.add(self.tab_peak_area_check, text='Std Peak Area Check')
-        
-        # Upload Excel File UI
-        self.file_path_frame_peak_area = tk.Frame(self.tab_peak_area_check)
-        self.file_path_frame_peak_area.pack(fill='x', pady=15)
-        
-        self.file_path_entry_peak_area = tk.Entry(self.file_path_frame_peak_area)
-        self.file_path_entry_peak_area.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        self.upload_button_peak_area = tk.Button(self.file_path_frame_peak_area, text="Upload Met Std Peak Area Data", command=self.upload_std_peak_area_file)
-        self.upload_button_peak_area.pack(side=tk.RIGHT, padx=5)
-
-        # Tkinter Table view.
-        self.std_met_peak_area_stats = tk.Frame(self.tab_peak_area_check)
-        self.std_met_peak_area_stats.pack(fill='x', pady=15)
-        
-        self.met_stats_table = ttk.Treeview(self.std_met_peak_area_stats)
-        self.met_stats_table['columns'] = ('Mean', 'Variance', 'RSD', 'Norm Mean', 'Norm Variance', 'Norm RSD')
-        
-        self.met_stats_table.heading("#0", text="Compound", anchor=tk.CENTER)  # Tree column heading
-        self.met_stats_table.column("#0", anchor=tk.CENTER)  # Tree column width
-        
-        self.met_stats_table.heading('Mean', text="Mean", anchor=tk.CENTER)
-        self.met_stats_table.column('Mean', anchor=tk.CENTER)
-
-        self.met_stats_table.heading('Variance', text="Variance", anchor=tk.CENTER)
-        self.met_stats_table.column('Variance', anchor=tk.CENTER)
-
-        self.met_stats_table.heading('RSD', text="RSD (%)", anchor=tk.CENTER)
-        self.met_stats_table.column('RSD', anchor=tk.CENTER)
-        
-        self.met_stats_table.heading('Norm Mean', text="Norm Mean", anchor=tk.CENTER)
-        self.met_stats_table.column('Norm Mean', anchor=tk.CENTER)
-
-        self.met_stats_table.heading('Norm Variance', text="Norm Variance", anchor=tk.CENTER)
-        self.met_stats_table.column('Norm Variance', anchor=tk.CENTER)
-
-        self.met_stats_table.heading('Norm RSD', text="Norm RSD (%)", anchor=tk.CENTER)
-        self.met_stats_table.column('Norm RSD', anchor=tk.CENTER)
-    
-        self.met_stats_table.pack(fill='x', pady=5, padx=15)
-
-    
-    def upload_std_peak_area_file(self):
-        analysis_fpath = filedialog.askopenfilename()
-        self.file_path_entry_peak_area.delete(0, tk.END)
-        self.file_path_entry_peak_area.insert(0, analysis_fpath)
-        
-        if self.is_excel_file(analysis_fpath):
-            xls = pd.ExcelFile(analysis_fpath)
-
-            if 'PoolAfterDF' in xls.sheet_names:
-                self.df_met_std_area = pd.read_excel(analysis_fpath, sheet_name='PoolAfterDF')
-            else:
-                self.write_to_terminal("'PoolAfterDF' excel sheet not present.")
-                return
-            
-            self.df_met_std_area.set_index('Compound', inplace=True)
-            
-            trifluoro_values = self.df_met_std_area.loc['trifluoromethanesulfonate']
-            self.normalized_df_met_std_area = self.df_met_std_area.apply(lambda x: x / trifluoro_values if x.name != 'Compound' else x, axis=1)
-            
-            # Calculate variance and standard deviation (RSD)
-            self.df_met_std_area['Mean'] = self.df_met_std_area.mean(axis=1)
-            self.df_met_std_area['Variance'] = self.df_met_std_area.var(axis=1)
-            self.df_met_std_area['RSD'] = self.df_met_std_area.std(axis=1) / self.df_met_std_area.mean(axis=1)
-            
-            self.normalized_df_met_std_area['Mean'] = self.normalized_df_met_std_area.mean(axis=1)
-            self.normalized_df_met_std_area['Variance'] = self.normalized_df_met_std_area.var(axis=1)
-            self.normalized_df_met_std_area['RSD'] = self.normalized_df_met_std_area.std(axis=1) / self.normalized_df_met_std_area.mean(axis=1)
-            
-            # Update TreeView
-            self.update_treeview()
-
-
-
-
-
-
-
-
-
-    def update_treeview(self):
-        # Clear existing data in the TreeView
-        for i in self.met_stats_table.get_children():
-            self.met_stats_table.delete(i)
-
-        # Insert new data
-        for index, row in self.df_met_std_area.iterrows():
-            # Original DataFrame
-            mean = f"{row['Mean']:.2e}"  # Formatting to 2 decimal places
-            variance = f"{row['Variance']:.2e}"  # Formatting to 2 decimal places
-            rsd = f"{row['RSD'] * 100:.2f}%"  # Convert to percentage and format
-
-            # Normalized DataFrame
-            norm_mean = f"{self.normalized_df_met_std_area.loc[index, 'Mean']:.2e}"
-            norm_variance = f"{self.normalized_df_met_std_area.loc[index, 'Variance']:.2e}"
-            norm_rsd = f"{self.normalized_df_met_std_area.loc[index, 'RSD'] * 100:.2f}%"
-
-            # Inserting both original and normalized data into the same row
-            self.met_stats_table.insert('', 'end', iid=index, text=str(index),
-                                        values=(mean, variance, rsd, norm_mean, norm_variance, norm_rsd))
 
 
 class CustomSpinbox:
