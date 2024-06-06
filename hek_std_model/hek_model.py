@@ -8,6 +8,7 @@ import numpy as np
 import os
 from pandastable import Table, TableModel
 import sys
+import xlsxwriter
 
 # Dynamically construct the class_ion_data_path using the current working directory
 base_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the current script
@@ -19,7 +20,7 @@ app_size = "1600x1100"
 
 
 # Scoring contribution of variables
-peak_area_impact = 0.4  # Positive impact
+peak_area_impact = 0.45  # Positive impact
 iqr_diff_impact = 0.1  # Negative impact
 variability_impact = 0.2  # Negative impact
 outlier_impact = 0.3  # Negative impact

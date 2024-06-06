@@ -1627,3 +1627,8 @@ class AutocompleteEntry(tk.Entry):
 root = tk.Tk()
 app = MetaboliteApp(root)
 root.mainloop()
+
+
+
+
+
